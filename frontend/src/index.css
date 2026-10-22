@@ -96,6 +96,138 @@ body {
   line-height: 1.55;
   font-weight: 450;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ==========================================================
+   LIGHT THEME ADAPTATION
+   ========================================================== */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: #F8FAFC;
+  color: #0F172A;
+}
+
+/* Background surfaces */
+html.light [class*="bg-[#0B100E]"],
+html.light [class*="bg-[#0B1110]"] {
+  background-color: #F8FAFC !important;
+}
+
+html.light [class*="bg-[#0E1513]"] {
+  background-color: #FFFFFF !important;
+}
+
+html.light [class*="bg-[#121A18]"],
+html.light [class*="bg-[#141D1B]"],
+html.light [class*="bg-[#141E1C]"] {
+  background-color: #FFFFFF !important;
+}
+
+html.light [class*="bg-[#16221F]"],
+html.light [class*="bg-[#162320]"],
+html.light [class*="bg-[#182421]"],
+html.light [class*="bg-[#15201D]"],
+html.light [class*="bg-[#182320]"] {
+  background-color: #F1F5F9 !important;
+}
+
+html.light [class*="bg-[#1C2B27]"],
+html.light [class*="bg-[#1E2D29]"],
+html.light [class*="hover:bg-[#1A2623]"]:hover,
+html.light [class*="hover:bg-[#141D1B]"]:hover,
+html.light [class*="hover:bg-[#15201D]"]:hover,
+html.light [class*="hover:bg-[#16221F]"]:hover,
+html.light [class*="hover:bg-[#182421]"]:hover,
+html.light [class*="hover:bg-[#1E2D29]"]:hover {
+  background-color: #E2E8F0 !important;
+}
+
+/* Borders */
+html.light [class*="border-[#202F2B]"],
+html.light [class*="border-[#263632]"],
+html.light [class*="border-[#283B36]"],
+html.light [class*="border-[#2D413C]"] {
+  border-color: #E2E8F0 !important;
+}
+
+html.light [class*="divide-[#202F2B]"] > * + *,
+html.light [class*="divide-[#263632]"] > * + * {
+  border-color: #E2E8F0 !important;
+}
+
+/* Typography */
+html.light [class*="text-[#F8FAFC]"],
+html.light [class*="text-[#F5F7F6]"] {
+  color: #0F172A !important;
+}
+
+html.light [class*="text-[#94A3B8]"],
+html.light [class*="text-[#A8B5B1]"] {
+  color: #475569 !important;
+}
+
+html.light [class*="text-[#64748B]"],
+html.light [class*="text-[#71807B]"] {
+  color: #64748B !important;
+}
+
+/* Form inputs & dropdowns */
+html.light select,
+html.light input[type="text"],
+html.light input[type="file"] {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light select option {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Code & Pre Blocks */
+html.light pre,
+html.light code {
+  background-color: #F1F5F9 !important;
+  border-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+/* Gradients in light mode */
+html.light [class*="from-[#141D1B]"][class*="to-[#0E1513]"] {
+  background-image: linear-gradient(to bottom, #FFFFFF, #F8FAFC) !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light [class*="from-emerald-500/10"][class*="to-[#0E1513]"] {
+  background-image: linear-gradient(to bottom, rgba(16, 185, 129, 0.08), #FFFFFF) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html.light [class*="from-[#162320]"][class*="to-[#141E1C]"] {
+  background-image: linear-gradient(to bottom, #FFFFFF, #F8FAFC) !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light .card-gradient {
+  background: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .card-elevated-gradient {
+  background: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .bg-canvas-grid {
+  background-color: #F8FAFC !important;
+  background-image: radial-gradient(rgba(100, 116, 139, 0.25) 1px, transparent 1px) !important;
 }
 
 .font-display {

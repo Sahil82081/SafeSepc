@@ -8,7 +8,7 @@ export function AppLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-[#0B100E] text-[#F8FAFC] transition-colors">
+    <div className="flex min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)] transition-colors">
       {/* Left rail sidebar (desktop) & mobile slide-out drawer */}
       <Sidebar
         mobileOpen={mobileMenuOpen}

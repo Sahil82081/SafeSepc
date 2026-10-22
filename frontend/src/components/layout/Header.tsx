@@ -90,13 +90,14 @@ export function Header({ onToggleMobileMenu }: HeaderProps) {
         <button
           type="button"
           onClick={toggleTheme}
-          aria-label="Toggle dark/light theme"
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
           className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#202F2B] bg-[#141D1B] text-[#94A3B8] hover:bg-[#1A2623] hover:text-[#F8FAFC] transition cursor-pointer shadow-xs shrink-0"
         >
           {theme === 'dark' ? (
-            <Sun className="h-3.5 w-3.5 text-amber-400" />
+            <Sun className="h-4 w-4 text-amber-400" />
           ) : (
-            <Moon className="h-3.5 w-3.5 text-[#94A3B8]" />
+            <Moon className="h-4 w-4 text-indigo-600" />
           )}
         </button>
       </div>
