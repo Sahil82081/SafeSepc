@@ -1,0 +1,1278 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>SafeSpec</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: left rail + one working column. Instrument-cluster feel: condensed signage type, amber lamp accent, hairline panels. */
+:root {
+  --bg: #0a0e13;
+  --surface: #111821;
+  --surface-2: #18212c;
+  --line: #243242;
+  --line-soft: #1a2531;
+  --fg: #e7edf4;
+  --fg-muted: #93a4b7;
+  --fg-faint: #62748a;
+  --accent: #ffb938;
+  --accent-text: #ffb938;
+  --accent-ink: #1b1300;
+  --pass: #3fd6a2;
+  --fail: #ff6a78;
+  --review: #9aa8ff;
+  --scene-fg: #e9eff6;
+  --scene-muted: #8a9bb0;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #eff2f6;
+    --surface: #ffffff;
+    --surface-2: #f4f6f9;
+    --line: #d5dde7;
+    --line-soft: #e6ebf1;
+    --fg: #101923;
+    --fg-muted: #51647a;
+    --fg-faint: #8091a5;
+    --accent: #f0a000;
+    --accent-text: #8f5500;
+    --accent-ink: #1b1300;
+    --pass: #0b8f63;
+    --fail: #cf3248;
+    --review: #4259d6;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #eff2f6;
+  --surface: #ffffff;
+  --surface-2: #f4f6f9;
+  --line: #d5dde7;
+  --line-soft: #e6ebf1;
+  --fg: #101923;
+  --fg-muted: #51647a;
+  --fg-faint: #8091a5;
+  --accent: #f0a000;
+  --accent-text: #8f5500;
+  --accent-ink: #1b1300;
+  --pass: #0b8f63;
+  --fail: #cf3248;
+  --review: #4259d6;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 14px/1.5 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+h1, h2, h3, p { margin: 0; }
+.mono { font-family: var(--font-mono); }
+
+/* App frame */
+.app {
+  display: grid;
+  grid-template-columns: 212px minmax(0, 1fr);
+  gap: 24px;
+  padding-block: 20px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  max-width: 1480px;
+  margin: 0 auto;
+}
+.rail {
+  position: sticky;
+  top: calc(20px + env(safe-area-inset-top, 0px));
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+.brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px; }
+.brand svg { width: 30px; height: 30px; color: var(--accent-text); flex: none; }
+.brand b { display: block; font: 700 22px/1 var(--font-display); letter-spacing: .09em; text-transform: uppercase; }
+.brand span { display: block; font-size: 11.5px; color: var(--fg-faint); margin-top: 3px; }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav button {
+  display: flex; align-items: center; gap: 11px;
+  width: 100%; padding: 9px 10px; border: 0; border-radius: 6px;
+  background: transparent; color: var(--fg-muted); text-align: left; font-weight: 500;
+}
+.nav button svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nav button:hover { background: var(--surface-2); color: var(--fg); }
+.nav button[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
+.nav button[aria-current="page"] svg { color: var(--accent-text); }
+.nav .count {
+  margin-left: auto; min-width: 20px; padding: 0 6px; border-radius: 10px; text-align: center;
+  font: 600 11.5px/18px var(--font-body);
+  background: color-mix(in srgb, var(--review) 22%, transparent); color: var(--review);
+}
+.nav .count[hidden] { display: none; }
+.rail-foot { display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+.kbd { font: 500 11px var(--font-mono); padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; color: var(--fg-faint); }
+
+.main { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.topbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; }
+.topbar h1 { font: 700 34px/1 var(--font-display); letter-spacing: .035em; text-transform: uppercase; text-wrap: balance; }
+.topbar p { color: var(--fg-muted); margin-top: 6px; max-width: 62ch; }
+.top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* Controls */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 7px 12px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--fg); font-weight: 500; font-size: 13px; line-height: 1.4;
+}
+.btn:hover { border-color: var(--fg-faint); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.good { border-color: color-mix(in srgb, var(--pass) 55%, transparent); color: var(--pass); }
+.btn.bad { border-color: color-mix(in srgb, var(--fail) 55%, transparent); color: var(--fail); }
+.btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tag {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 4px;
+  border: 1px dashed var(--fg-faint); color: var(--fg-muted); font-size: 12px;
+}
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface-2); }
+.seg button { border: 0; background: transparent; padding: 6px 11px; font-size: 13px; color: var(--fg-muted); font-weight: 500; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.tgl { appearance: none; -webkit-appearance: none; width: 36px; height: 20px; border-radius: 10px; background: var(--line); position: relative; margin: 0; cursor: pointer; flex: none; transition: background .15s; }
+.tgl::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--fg); transition: transform .15s; }
+.tgl:checked { background: var(--accent); }
+.tgl:checked::after { transform: translateX(16px); background: var(--accent-ink); }
+input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+input[type=search], textarea {
+  width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--fg);
+}
+textarea { min-height: 120px; resize: vertical; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; }
+
+/* Chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; padding: 1px 7px; border-radius: 4px;
+  border: 1px solid var(--line); color: var(--fg-muted); font-size: 11.5px; font-weight: 500; line-height: 1.6; white-space: nowrap;
+}
+.chip.pass { color: var(--pass); border-color: color-mix(in srgb, var(--pass) 45%, transparent); background: color-mix(in srgb, var(--pass) 11%, transparent); }
+.chip.fail { color: var(--fail); border-color: color-mix(in srgb, var(--fail) 45%, transparent); background: color-mix(in srgb, var(--fail) 11%, transparent); }
+.chip.review { color: var(--review); border-color: color-mix(in srgb, var(--review) 45%, transparent); background: color-mix(in srgb, var(--review) 12%, transparent); }
+.chip.amber { color: var(--accent-text); border-color: color-mix(in srgb, var(--accent) 50%, transparent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filters button { border: 1px solid var(--line); background: transparent; color: var(--fg-muted); border-radius: 4px; padding: 3px 10px; font-size: 12.5px; font-weight: 500; }
+.filters button[aria-pressed="true"] { background: var(--surface-2); color: var(--fg); border-color: var(--fg-faint); }
+
+/* Panels */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.panel-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 13px 16px 0; }
+.panel-b { padding: 12px 16px 16px; }
+.label { font: 600 13px/1.2 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--fg-muted); }
+.sub { font-size: 12.5px; color: var(--fg-faint); }
+.stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.cols { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.view[hidden] { display: none; }
+.view { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* KPI strip */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.kpi { padding: 14px 18px 15px; min-width: 0; }
+.kpi + .kpi { border-left: 1px solid var(--line-soft); }
+.kpi .v { font: 600 40px/1.05 var(--font-display); letter-spacing: .01em; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.kpi .v small { font-size: 22px; color: var(--fg-faint); font-weight: 500; }
+.kpi .d { font-size: 12.5px; color: var(--fg-muted); margin-top: 3px; }
+
+/* Pipeline */
+.pipe { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.step { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 0 0 15px; }
+.step:last-child { padding-bottom: 0; }
+.step::before { content: ""; position: absolute; left: 10px; top: 20px; bottom: -1px; width: 2px; background: var(--line); }
+.step:last-child::before { display: none; }
+.step.done::before { background: color-mix(in srgb, var(--pass) 55%, var(--line)); }
+.step .dot { width: 12px; height: 12px; border-radius: 50%; margin: 4px 0 0 5px; border: 2px solid var(--fg-faint); background: var(--surface); position: relative; z-index: 1; }
+.step.running .dot { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); animation: pulse 1s ease-in-out infinite; }
+.step.done .dot { border-color: var(--pass); background: var(--pass); }
+.step.done.wait .dot { border-color: var(--review); background: var(--review); }
+.step-n { font-weight: 600; }
+.step-s { font-size: 12.5px; color: var(--fg-faint); }
+.step-m { font: 500 12px var(--font-mono); color: var(--fg-muted); text-align: right; padding-top: 2px; max-width: 150px; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent) 6%, transparent); } }
+.log { background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 8px; padding: 10px 12px; font: 400 12px/1.65 var(--font-mono); height: 100%; min-height: 220px; max-height: 330px; overflow: auto; color: var(--fg-muted); }
+.log div { padding: 1px 0; }
+.log b { color: var(--accent-text); font-weight: 500; margin-right: 8px; }
+.log .empty { color: var(--fg-faint); }
+
+/* Evaluation bars */
+.evals { display: flex; flex-direction: column; gap: 14px; }
+.ev { display: grid; grid-template-columns: 130px minmax(0, 1fr) 96px; gap: 12px; align-items: center; }
+.ev .nm { font-weight: 500; }
+.ev .bars { display: flex; flex-direction: column; gap: 5px; }
+.bar { display: flex; align-items: center; gap: 8px; }
+.bar i { display: block; height: 8px; border-radius: 2px; background: var(--fg-muted); }
+.bar.r i { background: var(--accent); }
+.bar span { font: 500 12px var(--font-mono); color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.ev .mt { font: 400 12px var(--font-mono); color: var(--fg-faint); text-align: right; }
+.legend { display: flex; gap: 14px; font-size: 12.5px; color: var(--fg-muted); }
+.legend i { display: inline-block; width: 10px; height: 8px; border-radius: 2px; margin-right: 6px; background: var(--fg-muted); }
+.legend i.r { background: var(--accent); }
+
+/* Guardrails */
+.guards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.guards li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line-soft); }
+.guards li:first-child { border-top: 0; padding-top: 2px; }
+.guards b { font-weight: 600; display: block; }
+.guards span.t { font-size: 12.5px; color: var(--fg-muted); }
+
+/* Scenes */
+.scene-wrap { position: relative; border-radius: 8px; overflow: hidden; background: #05080c; }
+.scene-wrap canvas { display: block; width: 100%; aspect-ratio: 4 / 3; }
+.hud { position: absolute; left: 14px; top: 12px; right: 14px; display: flex; justify-content: space-between; gap: 10px; pointer-events: none; }
+.hud-state { font: 700 38px/1 var(--font-display); letter-spacing: .05em; text-transform: uppercase; color: var(--scene-fg); }
+.hud-why { font-size: 12.5px; color: var(--scene-muted); margin-top: 5px; max-width: 30ch; }
+.hud-right { text-align: right; font: 500 12px var(--font-mono); color: var(--scene-muted); }
+.hud-right b { display: block; font: 600 30px/1 var(--font-display); color: var(--scene-fg); letter-spacing: .02em; }
+.mini-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+.sim { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 0; border-top: 1px solid var(--line-soft); }
+.row:first-child { border-top: 0; padding-top: 2px; }
+.row label, .row .rl { font-weight: 500; }
+.row .hint { display: block; font-size: 12px; color: var(--fg-faint); font-weight: 400; }
+.slider-row { padding: 11px 0; border-top: 1px solid var(--line-soft); }
+.slider-row:first-child { border-top: 0; padding-top: 2px; }
+.slider-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.slider-top output { font: 600 22px/1 var(--font-display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.states { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.st { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--surface-2); min-width: 0; }
+.st b { display: block; font: 600 16px/1.1 var(--font-display); letter-spacing: .06em; text-transform: uppercase; color: var(--fg-muted); }
+.st span { font: 400 11px var(--font-mono); color: var(--fg-faint); }
+.st.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 13%, var(--surface)); }
+.st.on b { color: var(--accent-text); }
+.can { margin: 0; background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 8px; padding: 10px 12px; font: 400 12px/1.7 var(--font-mono); color: var(--fg-muted); overflow-x: auto; min-height: 150px; }
+.can .id { color: var(--accent-text); }
+.can .tm { color: var(--fg-faint); }
+.timeline { display: block; width: 100%; height: 200px; }
+
+/* Tables */
+.scroll { overflow-x: auto; }
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { text-align: left; font: 600 12px/1.2 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--fg-faint); padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl td { padding: 10px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+.tbl tbody tr[tabindex] { cursor: pointer; }
+.tbl tbody tr[tabindex]:hover td { background: var(--surface-2); }
+.tbl tbody tr.sel td { background: var(--surface-2); }
+.tbl tbody tr.sel td:first-child { box-shadow: inset 2px 0 0 var(--accent); }
+.tbl .id { font: 500 12.5px var(--font-mono); color: var(--accent-text); white-space: nowrap; }
+.tbl .txt { min-width: 260px; }
+.tbl .fl { display: flex; gap: 4px; flex-wrap: wrap; }
+mark { background: color-mix(in srgb, var(--review) 24%, transparent); color: inherit; border-radius: 2px; padding: 0 2px; box-shadow: inset 0 -2px 0 var(--review); }
+.split { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 16px; align-items: start; }
+.detail { display: flex; flex-direction: column; gap: 14px; position: sticky; top: calc(20px + env(safe-area-inset-top, 0px)); }
+.detail h2 { font: 700 26px/1 var(--font-display); letter-spacing: .04em; }
+.quote { border-left: 2px solid var(--line); padding: 2px 0 2px 12px; color: var(--fg-muted); font-size: 13px; }
+.kv { display: flex; flex-direction: column; gap: 6px; }
+.kv .k { font: 600 11.5px/1.2 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--fg-faint); }
+.note { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+
+/* Matrix */
+.matrix { border-collapse: separate; border-spacing: 3px; }
+.matrix th { font: 500 11.5px var(--font-mono); color: var(--fg-faint); font-weight: 500; text-align: center; padding: 0 0 4px; }
+.matrix th.hl { color: var(--accent-text); }
+.matrix th.rh { text-align: left; padding: 0 12px 0 0; min-width: 190px; }
+.matrix td { padding: 0; }
+.rowbtn { display: flex; align-items: baseline; gap: 8px; width: 100%; border: 0; background: transparent; padding: 5px 8px; border-radius: 5px; text-align: left; color: var(--fg-muted); font-size: 12.5px; }
+.rowbtn b { font: 500 12px var(--font-mono); color: var(--fg); }
+.rowbtn:hover, .rowbtn.sel { background: var(--surface-2); color: var(--fg); }
+.rowbtn.sel b { color: var(--accent-text); }
+.cell { width: 38px; height: 30px; border-radius: 4px; border: 0; display: grid; place-items: center; font-weight: 700; font-size: 13px; background: var(--line-soft); color: transparent; }
+.cell.pass { background: color-mix(in srgb, var(--pass) 24%, var(--surface)); color: var(--pass); }
+.cell.fail { background: color-mix(in srgb, var(--fail) 30%, var(--surface)); color: var(--fail); }
+.cell.hl { outline: 2px solid var(--accent-text); outline-offset: 0; }
+.cell.none { cursor: default; }
+td.gap .cell.none { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--fail) 26%, transparent) 0 4px, transparent 4px 8px); }
+.cov { font: 500 12px var(--font-mono); color: var(--fg-muted); padding-left: 10px; white-space: nowrap; }
+.regc { font: 400 12px var(--font-mono); color: var(--fg-faint); padding-left: 10px; white-space: nowrap; }
+.leg { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--fg-muted); }
+.leg i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; background: var(--line-soft); }
+.leg i.p { background: color-mix(in srgb, var(--pass) 45%, var(--surface)); }
+.leg i.f { background: color-mix(in srgb, var(--fail) 55%, var(--surface)); }
+.leg i.g { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--fail) 40%, transparent) 0 3px, transparent 3px 6px); }
+.impact ul { margin: 0; padding: 0; list-style: none; display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Tests + triage */
+.triage { border: 1px solid color-mix(in srgb, var(--fail) 40%, var(--line)); background: color-mix(in srgb, var(--fail) 6%, var(--surface)); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.triage.ok { border-color: color-mix(in srgb, var(--pass) 40%, var(--line)); background: color-mix(in srgb, var(--pass) 6%, var(--surface)); }
+.triage h3 { font: 600 15px/1.2 var(--font-body); }
+.triage .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+/* Approvals */
+.appr { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.alist { display: flex; flex-direction: column; gap: 8px; }
+.aitem { text-align: left; width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 11px 13px; display: flex; flex-direction: column; gap: 6px; }
+.aitem:hover { border-color: var(--fg-faint); }
+.aitem.sel { background: var(--surface-2); border-color: var(--fg-faint); }
+.aitem .t { font-weight: 600; }
+.aitem .m { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: var(--fg-faint); }
+.diffs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.diffbox { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface-2); min-width: 0; }
+.diffbox .k { margin-bottom: 6px; }
+.diffbox p, .diffbox pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.5px; line-height: 1.6; }
+.diffbox pre { font: 400 12.5px/1.7 var(--font-mono); }
+ins { text-decoration: none; background: color-mix(in srgb, var(--pass) 24%, transparent); border-radius: 2px; }
+del { background: color-mix(in srgb, var(--fail) 24%, transparent); border-radius: 2px; text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--fail) 60%, transparent); }
+.meter { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 6px; }
+.meter i { display: block; height: 100%; background: var(--pass); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.hlog { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.hlog time { font: 400 12px var(--font-mono); color: var(--fg-faint); margin-right: 8px; }
+
+/* Palette + toast */
+.scrim { position: fixed; inset: 0; z-index: 50; background: rgba(4, 7, 11, .6); display: flex; justify-content: center; align-items: flex-start; padding: 12vh 16px 16px; }
+.scrim[hidden] { display: none; }
+.pal { width: min(560px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: 0 24px 60px rgba(0, 0, 0, .45); }
+.pal input { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 13px 16px; background: transparent; font-size: 15px; }
+.pal ul { list-style: none; margin: 0; padding: 6px; max-height: 320px; overflow: auto; }
+.pal li button { width: 100%; text-align: left; border: 0; background: transparent; padding: 8px 10px; border-radius: 6px; display: flex; justify-content: space-between; gap: 12px; color: var(--fg-muted); }
+.pal li button b { font: 500 12px var(--font-mono); color: var(--accent-text); margin-right: 10px; }
+.pal li button[aria-selected="true"] { background: var(--surface-2); color: var(--fg); }
+.pal li button .g { color: var(--fg-faint); font-size: 12px; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 60;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  max-width: calc(100% - 32px);
+  background: var(--surface-2); border: 1px solid var(--fg-faint); border-radius: 8px; padding: 9px 14px; font-size: 13px; box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+}
+.toast[hidden] { display: none; }
+
+@media (max-width: 1100px) {
+  .cols, .sim, .split { grid-template-columns: minmax(0, 1fr); }
+  .detail { position: static; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi:nth-child(3) { border-left: 0; }
+  .kpi:nth-child(n+3) { border-top: 1px solid var(--line-soft); }
+}
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .rail { position: static; gap: 12px; }
+  .nav { flex-direction: row; overflow-x: auto; gap: 4px; padding-bottom: 2px; }
+  .nav button { width: auto; flex: none; white-space: nowrap; }
+  .rail-foot { display: none; }
+  .pipe, .appr { grid-template-columns: minmax(0, 1fr); }
+  .diffs { grid-template-columns: minmax(0, 1fr); }
+  .topbar h1 { font-size: 28px; }
+}
+@media (max-width: 560px) {
+  .kpis { grid-template-columns: minmax(0, 1fr); }
+  .kpi + .kpi { border-left: 0; border-top: 1px solid var(--line-soft); }
+  .ev { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .ev .mt { text-align: left; }
+  .states { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hud-state { font-size: 30px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .step.running .dot { animation: none; }
+  .tgl, .tgl::after { transition: none; }
+}
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16c0-6 4-10 9-10v20c-5 0-9-4-9-10z"/><path d="M19 9l9-3M19 16h9M19 23l9 3"/></svg>
+      <div><b>SafeSpec</b><span>Requirements to test</span></div>
+    </div>
+    <nav class="nav" aria-label="Sections" id="nav">
+      <button data-view="overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</button>
+      <button data-view="requirements"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Requirements</button>
+      <button data-view="traceability"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 17h6M17 14v6"/></svg>Traceability</button>
+      <button data-view="simulator"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a5 7 0 0 1 5-7v14a5 7 0 0 1-5-7z"/><path d="M12 7l9-2M12 12h9M12 17l9 2"/></svg>ECU simulator</button>
+      <button data-view="approvals"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>Approvals<span class="count" id="appr-count" hidden>0</span></button>
+    </nav>
+    <div class="rail-foot">
+      <button class="btn" id="open-pal" type="button">Search <span class="kbd">Ctrl K</span></button>
+      <button class="btn" id="theme" type="button">Switch theme</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="title">Overview</h1>
+        <p id="lede"></p>
+      </div>
+      <div class="top-actions">
+        <span class="tag">Sample data</span>
+        <button class="btn" id="open-pal-2" type="button">Search</button>
+        <button class="btn" id="theme-2" type="button">Theme</button>
+      </div>
+    </header>
+
+    <!-- OVERVIEW -->
+    <section class="view" id="view-overview">
+      <div class="kpis" id="kpis"></div>
+      <div class="cols">
+        <div class="stack">
+          <div class="panel">
+            <div class="panel-h">
+              <span class="label">Agent pipeline</span>
+              <button class="btn primary" id="run-pipe" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg>Run pipeline
+              </button>
+            </div>
+            <div class="panel-b pipe">
+              <ol class="steps" id="steps"></ol>
+              <div class="log" id="plog" aria-live="polite"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-h">
+              <span class="label">Retrieval strategy comparison</span>
+              <div class="legend"><span><i></i>Precision</span><span><i class="r"></i>Recall</span></div>
+            </div>
+            <div class="panel-b">
+              <div class="evals" id="evals"></div>
+              <p class="sub" style="margin-top:14px">Sample benchmark on 50 seeded defects. Replace with the output of your own evaluation harness.</p>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="panel">
+            <div class="panel-h"><span class="label">Live ECU</span><span class="chip amber" id="mini-chip">Low beam</span></div>
+            <div class="panel-b">
+              <div class="scene-wrap"><canvas id="scene-mini" aria-label="Top-down view of the simulated headlamp beam"></canvas></div>
+              <div class="mini-foot">
+                <span class="sub" id="mini-why"></span>
+                <button class="btn" data-go="simulator" type="button">Open simulator</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><span class="label">Safeguards</span></div>
+            <div class="panel-b"><ul class="guards" id="guards"></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REQUIREMENTS -->
+    <section class="view" id="view-requirements" hidden>
+      <div class="split">
+        <div class="panel">
+          <div class="panel-h" style="flex-direction:column;align-items:stretch;gap:10px">
+            <input type="search" id="req-q" placeholder="Filter by ID or wording" aria-label="Filter requirements">
+            <div class="filters" id="req-filters"></div>
+          </div>
+          <div class="panel-b scroll" style="padding-top:8px">
+            <table class="tbl">
+              <thead><tr><th>ID</th><th>Requirement</th><th>Findings</th><th>Tests</th></tr></thead>
+              <tbody id="req-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel detail" id="req-detail"></div>
+      </div>
+    </section>
+
+    <!-- TRACEABILITY -->
+    <section class="view" id="view-traceability" hidden>
+      <div class="panel">
+        <div class="panel-h"><span class="label">Requirement to test matrix</span><div class="leg"><span><i class="p"></i>Linked, passed</span><span><i class="f"></i>Linked, failed</span><span><i></i>No link</span><span><i class="g"></i>No test at all</span></div></div>
+        <div class="panel-b scroll"><table class="matrix" id="matrix"></table></div>
+      </div>
+      <div class="panel impact">
+        <div class="panel-h"><span class="label">Impact of changing a requirement</span></div>
+        <div class="panel-b" id="impact"></div>
+      </div>
+    </section>
+
+    <!-- SIMULATOR -->
+    <section class="view" id="view-simulator" hidden>
+      <div class="sim">
+        <div class="panel">
+          <div class="panel-b">
+            <div class="scene-wrap">
+              <canvas id="scene" aria-label="Top-down view of the simulated headlamp beam"></canvas>
+              <div class="hud">
+                <div><div class="hud-state" id="hud-state">Low beam</div><div class="hud-why" id="hud-why"></div></div>
+                <div class="hud-right"><b id="hud-speed">62</b>km/h</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="panel">
+            <div class="panel-h"><span class="label">Vehicle signals</span><button class="btn" id="pause" type="button">Pause scene</button></div>
+            <div class="panel-b">
+              <div class="slider-row">
+                <div class="slider-top"><label for="sim-speed" class="rl" style="font-weight:500">Vehicle speed</label><output id="sim-speed-out" for="sim-speed">62 km/h</output></div>
+                <input type="range" id="sim-speed" min="0" max="140" step="1" value="62">
+              </div>
+              <div class="row">
+                <div class="rl">Ambient light<span class="hint" id="lux-out">5 lux</span></div>
+                <div class="seg" id="lux-seg" role="group" aria-label="Ambient light">
+                  <button type="button" data-lux="5" aria-pressed="true">Night</button>
+                  <button type="button" data-lux="80" aria-pressed="false">Dusk</button>
+                  <button type="button" data-lux="1500" aria-pressed="false">Day</button>
+                </div>
+              </div>
+              <div class="row"><label for="sw-onc">Oncoming vehicle<span class="hint">Approaches in the right lane</span></label><input class="tgl" type="checkbox" id="sw-onc" role="switch" checked></div>
+              <div class="row"><label for="sw-cam">Camera signal<span class="hint">Turn off to test the fallback</span></label><input class="tgl" type="checkbox" id="sw-cam" role="switch" checked></div>
+              <div class="row"><label for="sw-spd">Speed signal valid<span class="hint">Turn off to send an invalid frame</span></label><input class="tgl" type="checkbox" id="sw-spd" role="switch" checked></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><span class="label">ECU state</span></div>
+            <div class="panel-b"><div class="states" id="states"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cols" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)">
+        <div class="panel">
+          <div class="panel-h"><span class="label">Signal timeline, last 30 s</span><div class="legend"><span><i></i>Speed</span><span><i class="r"></i>Beam state</span><span class="chip review">Oncoming</span></div></div>
+          <div class="panel-b"><canvas class="timeline" id="timeline" aria-label="Timeline of speed, oncoming vehicle and beam state"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><span class="label">Virtual CAN bus</span></div>
+          <div class="panel-b"><pre class="can" id="can"></pre></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">
+          <span class="label">Generated test suite</span>
+          <div class="top-actions">
+            <span class="sub">ECU high-beam threshold</span>
+            <div class="seg" id="thr-seg" role="group" aria-label="ECU high-beam threshold">
+              <button type="button" data-thr="30" aria-pressed="false">30 km/h</button>
+              <button type="button" data-thr="40" aria-pressed="true">40 km/h</button>
+            </div>
+            <button class="btn primary" id="run-tests" type="button">Run suite</button>
+          </div>
+        </div>
+        <div class="panel-b" style="display:flex;flex-direction:column;gap:14px">
+          <div id="triage"></div>
+          <div class="scroll">
+            <table class="tbl">
+              <thead><tr><th>Test</th><th>Requirement</th><th>Scenario</th><th>Expected</th><th>Actual</th><th>Result</th></tr></thead>
+              <tbody id="test-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- APPROVALS -->
+    <section class="view" id="view-approvals" hidden>
+      <div class="appr">
+        <div class="alist" id="alist"></div>
+        <div class="stack">
+          <div class="panel" id="adetail"></div>
+          <div class="panel">
+            <div class="panel-h"><span class="label">Decision log</span></div>
+            <div class="panel-b"><ul class="hlog" id="hlog"></ul></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="scrim" id="pal" hidden>
+  <div class="pal" role="dialog" aria-modal="true" aria-label="Search">
+    <input type="search" id="pal-q" placeholder="Jump to a section or requirement" autocomplete="off">
+    <ul id="pal-list"></ul>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Data (sample) ---------- */
+  const REQS = [
+    { id: 'REQ-012', text: 'The headlamp shall switch to low beam when an oncoming vehicle is detected within 150 m.', flags: [], terms: [], safety: true, reg: 'UNECE R48 · passing beam', chunk: 'R48-c014', chunkText: 'Paraphrased: when other road users approach, the main beam must give way to the passing beam so they are not dazzled.', tests: ['T-01', 'T-02'], note: 'Clear trigger and measurable range. Testable as written.' },
+    { id: 'REQ-017', text: 'The high beam shall activate above 30 km/h when ambient light is below 50 lux and no vehicle is ahead.', flags: ['conflict'], conflict: 'REQ-031', terms: ['30 km/h'], safety: true, reg: 'UNECE R48 · main beam', chunk: 'R48-c009', chunkText: 'Paraphrased: main beam use is conditional on the road ahead being free of other road users.', tests: ['T-03', 'T-04'], note: 'The speed threshold of 30 km/h contradicts REQ-031, which sets 40 km/h for the same high-beam condition.' },
+    { id: 'REQ-023', text: 'The headlamp shall react quickly to oncoming traffic.', flags: ['ambiguous', 'missing'], terms: ['quickly'], safety: true, reg: 'UNECE R48 · passing beam', chunk: 'R48-c014', chunkText: 'Paraphrased: the standard requires timely switching but leaves the limit to the vehicle maker.', tests: ['T-11'], note: '"quickly" has no measurable limit. Test T-11 uses an assumed 200 ms that needs confirmation.' },
+    { id: 'REQ-025', text: 'Beam switching shall complete within 300 ms of the detection signal.', flags: [], terms: [], safety: false, reg: '', chunk: '', chunkText: '', tests: ['T-07'], note: 'Measurable limit with a clear start event. Testable as written.' },
+    { id: 'REQ-028', text: 'In case of sensor failure the headlamp should fall back to an appropriate beam.', flags: ['ambiguous'], terms: ['should', 'appropriate'], safety: true, reg: '', chunk: '', chunkText: '', tests: ['T-09'], note: '"should" is not binding and "appropriate" is undefined. Test T-09 assumes the low beam.' },
+    { id: 'REQ-031', text: 'The system shall enable high beam assist only above 40 km/h in darkness.', flags: ['conflict'], conflict: 'REQ-017', terms: ['40 km/h'], safety: true, reg: 'UNECE R48 · main beam', chunk: 'R48-c009', chunkText: 'Paraphrased: main beam use is conditional on the road ahead being free of other road users.', tests: ['T-05', 'T-06'], note: 'Threshold of 40 km/h contradicts REQ-017 (30 km/h).' },
+    { id: 'REQ-034', text: 'The ECU shall turn off the headlamp output in daylight above 1000 lux.', flags: [], terms: [], safety: false, reg: '', chunk: '', chunkText: '', tests: ['T-08'], note: 'Clear threshold and unit. Testable as written.' },
+    { id: 'REQ-036', text: 'Cornering light shall support smooth operation.', flags: ['untestable'], terms: ['smooth operation'], safety: false, reg: '', chunk: '', chunkText: '', tests: [], note: 'No observable pass or fail condition. Needs a measurable behaviour before a test can exist.' },
+    { id: 'REQ-041', text: 'The ECU shall log a DTC when the camera signal is lost for more than 500 ms.', flags: [], terms: [], safety: true, reg: '', chunk: '', chunkText: '', tests: [], note: 'Requirement is clear but no test covers it. A test case is waiting in Approvals.' },
+    { id: 'REQ-044', text: 'The headlamp shall limit glare to other road users as required by applicable regulation.', flags: ['ambiguous', 'missing'], terms: ['as required by applicable regulation'], safety: true, reg: 'UNECE R112 · glare', chunk: 'R112-c031', chunkText: 'Paraphrased: passing beam cut-off and glare are verified at defined measuring points in front of the lamp.', tests: [], note: 'Refers to a regulation without naming the clause or limit. Needs a specific reference.' },
+    { id: 'REQ-047', text: 'The auto-levelling actuator shall reach the target angle in a reasonable time.', flags: ['ambiguous', 'missing'], terms: ['reasonable time'], safety: false, reg: '', chunk: '', chunkText: '', tests: [], note: '"reasonable time" has no limit. No test can be generated yet.' },
+    { id: 'REQ-052', text: 'The ECU shall ignore speed signals flagged invalid.', flags: [], terms: [], safety: false, reg: '', chunk: '', chunkText: '', tests: ['T-10'], note: 'Clear and testable with an invalid-flag frame.' }
+  ];
+  const FLAG = { conflict: ['Conflict', 'fail'], ambiguous: ['Ambiguous', 'review'], missing: ['Missing value', ''], untestable: ['Untestable', ''] };
+
+  const ECU_CFG = { hiSpeed: 40, hiLux: 50, dayLux: 1000 };
+  const LAT = 120;
+  const STATE_NAME = { OFF: 'Off', LOW: 'Low beam', HIGH: 'High beam', FALLBACK: 'Fallback' };
+  const STATE_CODE = { OFF: 0, FALLBACK: 1, LOW: 2, HIGH: 3 };
+  function ecu(i) {
+    const sp = i.speedValid === false ? 0 : i.speed;
+    if (i.camera === false) return { state: 'FALLBACK', why: 'Camera signal lost, low beam fallback' };
+    if (i.lux > ECU_CFG.dayLux) return { state: 'OFF', why: 'Daylight, above ' + ECU_CFG.dayLux + ' lux' };
+    if (i.oncoming) return { state: 'LOW', why: 'Oncoming vehicle within 150 m' };
+    if (sp >= ECU_CFG.hiSpeed && i.lux < ECU_CFG.hiLux) return { state: 'HIGH', why: 'Road clear, ' + ECU_CFG.hiSpeed + ' km/h or more, dark' };
+    if (sp < ECU_CFG.hiSpeed) return { state: 'LOW', why: 'Below ' + ECU_CFG.hiSpeed + ' km/h high-beam threshold' };
+    return { state: 'LOW', why: 'Light level above ' + ECU_CFG.hiLux + ' lux' };
+  }
+  const TESTS = [
+    { id: 'T-01', req: 'REQ-012', name: 'Oncoming vehicle at 60 km/h', given: { speed: 60, lux: 5, oncoming: true }, expect: 'LOW' },
+    { id: 'T-02', req: 'REQ-012', name: 'Oncoming vehicle at 90 km/h', given: { speed: 90, lux: 5, oncoming: true }, expect: 'LOW' },
+    { id: 'T-03', req: 'REQ-017', name: 'High beam at 35 km/h in darkness', given: { speed: 35, lux: 20 }, expect: 'HIGH' },
+    { id: 'T-04', req: 'REQ-017', name: 'High beam at 80 km/h in darkness', given: { speed: 80, lux: 10 }, expect: 'HIGH' },
+    { id: 'T-05', req: 'REQ-031', name: 'High beam at 45 km/h in darkness', given: { speed: 45, lux: 10 }, expect: 'HIGH' },
+    { id: 'T-06', req: 'REQ-031', name: 'Low beam at 39 km/h in darkness', given: { speed: 39, lux: 10 }, expect: 'LOW' },
+    { id: 'T-07', req: 'REQ-025', name: 'Switch completes within 300 ms', latency: 300 },
+    { id: 'T-08', req: 'REQ-034', name: 'Output off at 1,500 lux', given: { speed: 50, lux: 1500 }, expect: 'OFF' },
+    { id: 'T-09', req: 'REQ-028', name: 'Camera lost, fall back to low beam', given: { speed: 70, lux: 5, camera: false }, expect: 'FALLBACK', assumed: true },
+    { id: 'T-10', req: 'REQ-052', name: 'Ignore an invalid speed frame', given: { speed: 100, speedValid: false, lux: 10 }, expect: 'LOW' },
+    { id: 'T-11', req: 'REQ-023', name: 'React within 200 ms', latency: 200, assumed: true }
+  ];
+  function runTest(t) {
+    if (t.latency) return { pass: LAT <= t.latency, expected: '≤ ' + t.latency + ' ms', actual: LAT + ' ms' };
+    const g = Object.assign({ speed: 0, lux: 0, oncoming: false, camera: true, speedValid: true }, t.given);
+    const r = ecu(g);
+    return { pass: r.state === t.expect, expected: STATE_NAME[t.expect], actual: STATE_NAME[r.state] };
+  }
+  const RESULTS = {};
+  function runAll() { TESTS.forEach(t => { RESULTS[t.id] = runTest(t); }); }
+  runAll();
+
+  const APPROVALS = [
+    { id: 'A-101', kind: 'Rewrite', title: 'Make REQ-023 measurable', req: 'REQ-023', orig: REQS[2].text, prop: 'The headlamp shall switch to low beam within 200 ms after the oncoming-vehicle detection signal.', ground: 92, critic: 'Structure follows REQ-012 and REQ-025. The 200 ms limit is a proposed value with no source. An engineer must confirm it.', status: 'pending' },
+    { id: 'A-102', kind: 'Conflict', title: 'Resolve the high-beam speed threshold', req: 'REQ-017', orig: REQS[1].text, prop: 'The high beam shall activate at or above 40 km/h when ambient light is below 50 lux and no vehicle is ahead.', ground: 88, critic: 'The agent cannot decide which threshold is right. REQ-031 and the simulator use 40 km/h. The requirement owner must choose between 30 and 40 km/h.', status: 'pending' },
+    { id: 'A-103', kind: 'Safety hint', title: 'Review REQ-028 for safety relevance', req: 'REQ-028', orig: '', prop: 'Possible safety relevance: if the camera signal is lost the driver may be left with reduced forward visibility. A safety engineer decides whether this needs a safety goal.', ground: 81, critic: 'Reasoning rests on the requirement text only. No regulation chunk supports the classification. Marked as a hint, never a decision.', status: 'pending' },
+    { id: 'A-104', kind: 'New test', title: 'Add a test for REQ-041', req: 'REQ-041', orig: '', prop: 'Scenario: Camera signal lost for more than 500 ms\n  Given the camera signal is valid\n  When the camera signal is lost for 600 ms\n  Then a DTC "camera signal lost" is logged', ground: 96, critic: 'Every step maps to a phrase in REQ-041. The simulator does not log DTCs yet, so this test cannot run until it does.', status: 'pending' }
+  ];
+  const DECISIONS = [];
+
+  const EVALS = [
+    { n: 'Plain RAG', p: .81, r: .62, m: '1.9 s · $0.011' },
+    { n: 'GraphRAG', p: .86, r: .84, m: '3.4 s · $0.019' },
+    { n: 'GraphRAG + Critic', p: .94, r: .83, m: '5.1 s · $0.031' }
+  ];
+  const GUARDS = [
+    { n: 'Prompt-injection probe', t: 'Blocked 12 of 12 instructions planted in requirement files.', c: 'pass', l: 'Passing' },
+    { n: 'Role-based access', t: 'Restricted documents stay hidden from roles without access.', c: 'pass', l: 'Passing' },
+    { n: 'Tool allowlist', t: 'Five approved tools. No code execution by the agents.', c: 'pass', l: 'Enforced' },
+    { n: 'Human sign-off', t: 'Safety-relevant output waits for an engineer.', c: 'review', l: 'pending' }
+  ];
+
+  /* ---------- Helpers ---------- */
+  const reqById = id => REQS.find(r => r.id === id);
+  const regShort = s => { const m = /R(\d+)/.exec(s || ''); return m ? 'R' + m[1] : '—'; };
+  const pendingCount = () => APPROVALS.filter(a => a.status === 'pending').length;
+  function hl(text, terms) {
+    let s = esc(text);
+    (terms || []).forEach(t => {
+      const re = new RegExp(esc(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      s = s.replace(re, m => '<mark>' + m + '</mark>');
+    });
+    return s;
+  }
+  function flagChips(r) {
+    return r.flags.map(f => '<span class="chip ' + FLAG[f][1] + '">' + FLAG[f][0] + '</span>').join('');
+  }
+  let toastTimer;
+  function toast(msg) {
+    const t = $('#toast');
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 2800);
+  }
+
+  /* ---------- Views ---------- */
+  const VIEWS = {
+    overview: ['Overview', 'Pipeline status, evaluation results and safeguards for the headlamp requirement set.'],
+    requirements: ['Requirements', 'Findings from the agents, each tied to the source it was checked against.'],
+    traceability: ['Traceability', 'Requirement to test coverage. Select a requirement to see what a change affects.'],
+    simulator: ['ECU simulator', 'Generated tests run against a virtual headlamp ECU on a simulated CAN bus.'],
+    approvals: ['Approvals', 'Nothing is final until an engineer approves, edits or rejects it.']
+  };
+  let cur = 'overview';
+  function go(name, keepHash) {
+    if (!VIEWS[name]) name = 'overview';
+    cur = name;
+    $$('.view').forEach(v => { v.hidden = v.id !== 'view-' + name; });
+    $$('#nav button').forEach(b => { if (b.dataset.view === name) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    $('#title').textContent = VIEWS[name][0];
+    $('#lede').textContent = VIEWS[name][1];
+    if (!keepHash) { try { history.replaceState(null, '', '#' + name); } catch (e) { /* ignore */ } }
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => { fitAll(); });
+  }
+  $('#nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) go(b.dataset.view); });
+  document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
+  window.addEventListener('hashchange', () => { const h = location.hash.replace('#', ''); if (VIEWS[h] && h !== cur) go(h, true); });
+
+  /* ---------- Theme ---------- */
+  function effTheme() {
+    const a = document.documentElement.getAttribute('data-theme');
+    if (a) return a;
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+  function toggleTheme() {
+    const next = effTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('safespec-theme', next); } catch (e) { /* ignore */ }
+    requestAnimationFrame(() => { drawTimeline(); });
+  }
+  try { const saved = localStorage.getItem('safespec-theme'); if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved); } catch (e) { /* ignore */ }
+  $('#theme').addEventListener('click', toggleTheme);
+  $('#theme-2').addEventListener('click', toggleTheme);
+
+  /* ---------- Overview ---------- */
+  function renderKPIs() {
+    const flagged = REQS.filter(r => r.flags.length).length;
+    const conflicts = REQS.filter(r => r.flags.indexOf('conflict') > -1).length;
+    const amb = REQS.filter(r => r.flags.indexOf('ambiguous') > -1).length;
+    const covered = REQS.filter(r => r.tests.length).length;
+    const passN = TESTS.filter(t => RESULTS[t.id].pass).length;
+    const failN = TESTS.length - passN;
+    const k = [
+      ['Requirements parsed', REQS.length, 'from 2 requirement files'],
+      ['Flagged by agents', flagged, conflicts + ' in conflict, ' + amb + ' ambiguous'],
+      ['Test coverage', Math.round(covered / REQS.length * 100) + '<small>%</small>', covered + ' of ' + REQS.length + ' requirements have a test'],
+      ['Simulator results', passN + '<small>/' + TESTS.length + '</small>', failN ? failN + ' failing, triaged in the simulator' : 'All tests pass']
+    ];
+    $('#kpis').innerHTML = k.map(x => '<div class="kpi"><div class="label">' + x[0] + '</div><div class="v">' + x[1] + '</div><div class="d">' + x[2] + '</div></div>').join('');
+  }
+  const STEPS = [
+    { k: 'ingest', n: 'Ingest', s: 'Parse, chunk, embed' },
+    { k: 'quality', n: 'Quality agent', s: 'Ambiguity and conflicts' },
+    { k: 'safety', n: 'Safety hint agent', s: 'Always human reviewed' },
+    { k: 'testgen', n: 'Test generator', s: 'Structured test cases' },
+    { k: 'simulate', n: 'Simulator', s: 'Execute against the ECU' },
+    { k: 'critic', n: 'Critic', s: 'Verify against sources' },
+    { k: 'gate', n: 'Human gate', s: 'Approve, edit or reject' }
+  ];
+  function pipeOut(k) {
+    const flagged = REQS.filter(r => r.flags.length).length;
+    const safety = REQS.filter(r => r.safety).length;
+    const assumed = TESTS.filter(t => t.assumed).length;
+    const passN = TESTS.filter(t => RESULTS[t.id].pass).length;
+    const failed = TESTS.filter(t => !RESULTS[t.id].pass);
+    const p = pendingCount();
+    const o = {
+      ingest: { m: '38 chunks', l: ['Parsed ' + REQS.length + ' requirements and 2 regulation extracts into 38 chunks.', 'Embedded all chunks and indexed them in the vector store and the graph.'] },
+      quality: { m: flagged + ' flagged', l: [flagged + ' requirements flagged. REQ-017 and REQ-031 contradict each other.', 'Ambiguous wording found in REQ-023, REQ-028, REQ-044 and REQ-047.'] },
+      safety: { m: safety + ' hints', l: [safety + ' requirements marked as possibly safety-relevant.', 'All of them are routed to human review. None is decided by an agent.'] },
+      testgen: { m: TESTS.length + ' tests', l: [TESTS.length + ' test cases drafted as structured JSON.', assumed + ' use assumed limits and are誣 labelled as such.'] },
+      simulate: { m: passN + '/' + TESTS.length + ' pass', l: ['Executed ' + TESTS.length + ' tests on the virtual CAN bus.', failed.length ? failed.map(t => t.id).join(', ') + ' failed and went to triage.' : 'No failures.'] },
+      critic: { m: '2 rejected', l: ['Checked 27 claims against their source chunks.', '2 claims rejected as ungrounded and removed from the report.'] },
+      gate: { m: p + ' waiting', l: [p ? p + ' items waiting for an engineer.' : 'Review queue is empty.'] }
+    };
+    return o[k];
+  }
+  const pipeState = {};
+  function renderSteps() {
+    $('#steps').innerHTML = STEPS.map(s => {
+      const st = pipeState[s.k] || { s: 'idle', m: '' };
+      const wait = s.k === 'gate' && st.s === 'done' && pendingCount() > 0 ? ' wait' : '';
+      return '<li class="step ' + st.s + wait + '"><span class="dot" aria-hidden="true"></span><div><div class="step-n">' + s.n + '</div><div class="step-s">' + s.s + '</div></div><div class="step-m">' + esc(st.m) + '</div></li>';
+    }).join('');
+  }
+  let logLines = [];
+  function renderLog() {
+    const el = $('#plog');
+    el.innerHTML = logLines.length ? logLines.map(l => '<div><b>' + esc(l[0]) + '</b>' + esc(l[1]) + '</div>').join('') : '<div class="empty">Waiting to run.</div>';
+    el.scrollTop = el.scrollHeight;
+  }
+  function settlePipeline() {
+    logLines = [];
+    STEPS.forEach(s => { const o = pipeOut(s.k); pipeState[s.k] = { s: 'done', m: o.m }; o.l.forEach(t => logLines.push([s.n, t])); });
+    renderSteps(); renderLog();
+  }
+  let running = false;
+  async function runPipeline() {
+    if (running) return;
+    running = true;
+    const btn = $('#run-pipe'); btn.disabled = true;
+    logLines = []; STEPS.forEach(s => { pipeState[s.k] = { s: 'idle', m: '' }; });
+    renderSteps(); renderLog();
+    for (const s of STEPS) {
+      pipeState[s.k] = { s: 'running', m: 'Running' }; renderSteps();
+      await wait(reduceMotion ? 80 : 600);
+      const o = pipeOut(s.k);
+      pipeState[s.k] = { s: 'done', m: o.m };
+      o.l.forEach(t => logLines.push([s.n, t]));
+      renderSteps(); renderLog();
+      await wait(reduceMotion ? 20 : 120);
+    }
+    toast('Pipeline finished. ' + pendingCount() + ' items need review.');
+    btn.disabled = false; running = false;
+  }
+  $('#run-pipe').addEventListener('click', runPipeline);
+  function renderEvals() {
+    $('#evals').innerHTML = EVALS.map(e => '<div class="ev"><div class="nm">' + e.n + '</div><div class="bars">' +
+      '<div class="bar"><i style="width:' + (e.p * 100) + '%"></i><span>' + e.p.toFixed(2) + '</span></div>' +
+      '<div class="bar r"><i style="width:' + (e.r * 100) + '%"></i><span>' + e.r.toFixed(2) + '</span></div></div>' +
+      '<div class="mt">' + e.m + '</div></div>').join('');
+  }
+  function renderGuards() {
+    $('#guards').innerHTML = GUARDS.map(g => {
+      const label = g.n === 'Human sign-off' ? pendingCount() + ' pending' : g.l;
+      return '<li><div><b>' + g.n + '</b><span class="t">' + g.t + '</span></div><span class="chip ' + g.c + '">' + label + '</span></li>';
+    }).join('');
+  }
+
+  /* ---------- Requirements ---------- */
+  let reqFilter = 'all', reqQuery = '', selReq = 'REQ-017';
+  const FILTERS = [
+    ['all', 'All', r => true],
+    ['conflict', 'Conflicts', r => r.flags.indexOf('conflict') > -1],
+    ['ambiguous', 'Ambiguous', r => r.flags.indexOf('ambiguous') > -1],
+    ['untested', 'No test', r => r.tests.length === 0],
+    ['safety', 'Safety hints', r => r.safety]
+  ];
+  function renderFilters() {
+    $('#req-filters').innerHTML = FILTERS.map(f => '<button type="button" data-f="' + f[0] + '" aria-pressed="' + (reqFilter === f[0]) + '">' + f[1] + ' ' + REQS.filter(f[2]).length + '</button>').join('');
+  }
+  function renderReqTable() {
+    const fn = FILTERS.find(f => f[0] === reqFilter)[2];
+    const q = reqQuery.trim().toLowerCase();
+    const rows = REQS.filter(fn).filter(r => !q || r.id.toLowerCase().indexOf(q) > -1 || r.text.toLowerCase().indexOf(q) > -1);
+    $('#req-body').innerHTML = rows.length ? rows.map(r => {
+      const tfail = r.tests.some(t => !RESULTS[t].pass);
+      const tests = r.tests.length ? '<span class="chip ' + (tfail ? 'fail' : 'pass') + '">' + r.tests.length + (tfail ? ' failing' : ' passing') + '</span>' : '<span class="chip">No test</span>';
+      return '<tr tabindex="0" data-id="' + r.id + '" class="' + (r.id === selReq ? 'sel' : '') + '"><td class="id">' + r.id + '</td><td class="txt">' + hl(r.text, r.terms) + '</td><td><div class="fl">' + (flagChips(r) || '<span class="chip pass">Clean</span>') + '</div></td><td>' + tests + '</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="sub" style="padding:18px 12px">No requirement matches this filter.</td></tr>';
+  }
+  function renderReqDetail() {
+    const r = reqById(selReq);
+    const appr = APPROVALS.find(a => a.req === r.id);
+    const tests = r.tests.map(t => '<span class="chip ' + (RESULTS[t].pass ? 'pass' : 'fail') + ' mono">' + t + '</span>').join(' ') || '<span class="sub">No test is linked.</span>';
+    $('#req-detail').innerHTML = '<div class="panel-b" style="display:flex;flex-direction:column;gap:14px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2>' + r.id + '</h2><div class="fl" style="display:flex;gap:4px;flex-wrap:wrap">' + flagChips(r) + '</div></div>' +
+      '<p style="font-size:15px">' + hl(r.text, r.terms) + '</p>' +
+      '<div class="kv"><span class="k">What the quality agent found</span><div class="note">' + esc(r.note) + '</div></div>' +
+      (r.safety ? '<div class="kv"><span class="k">Safety hint</span><div><span class="chip review">Needs human review</span> <span class="sub">Suggested only, never decided by an agent.</span></div></div>' : '') +
+      '<div class="kv"><span class="k">Grounding</span>' + (r.reg ? '<div class="quote">' + esc(r.chunkText) + '<br><span class="mono sub">' + esc(r.reg) + ' · ' + r.chunk + '</span></div><div><span class="chip pass">Critic: source verified</span></div>' : '<span class="sub">No regulation applies. The finding rests on the requirement text.</span>') + '</div>' +
+      '<div class="kv"><span class="k">Linked tests</span><div>' + tests + '</div></div>' +
+      (appr ? '<button class="btn" type="button" data-appr="' + appr.id + '">Review in approvals (' + appr.id + ')</button>' : '') +
+      '</div>';
+  }
+  $('#req-filters').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; reqFilter = b.dataset.f; renderFilters(); renderReqTable(); });
+  $('#req-q').addEventListener('input', e => { reqQuery = e.target.value; renderReqTable(); });
+  function pickReq(row) { selReq = row.dataset.id; renderReqTable(); renderReqDetail(); renderMatrix(); renderImpact(); }
+  $('#req-body').addEventListener('click', e => { const tr = e.target.closest('tr[data-id]'); if (tr) pickReq(tr); });
+  $('#req-body').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { const tr = e.target.closest('tr[data-id]'); if (tr) { e.preventDefault(); pickReq(tr); } } });
+  document.addEventListener('click', e => { const b = e.target.closest('[data-appr]'); if (b) { selAppr = b.dataset.appr; editing = false; go('approvals'); renderApprovals(); } });
+
+  /* ---------- Traceability ---------- */
+  function renderMatrix() {
+    const sel = reqById(selReq);
+    let h = '<thead><tr><th class="rh"></th>' + TESTS.map(t => '<th class="' + (sel.tests.indexOf(t.id) > -1 ? 'hl' : '') + '">' + t.id.replace('T-', 'T') + '</th>').join('') + '<th></th><th></th></tr></thead><tbody>';
+    REQS.forEach(r => {
+      const gap = r.tests.length === 0;
+      h += '<tr><th class="rh"><button class="rowbtn ' + (r.id === selReq ? 'sel' : '') + '" type="button" data-req="' + r.id + '"><b>' + r.id + '</b>' + esc(r.text.length > 34 ? r.text.slice(0, 33).replace(/\s+\S*$/, '') + '…' : r.text) + '</button></th>';
+      TESTS.forEach(t => {
+        const linked = r.tests.indexOf(t.id) > -1;
+        const on = r.id === selReq && linked ? ' hl' : '';
+        if (linked) {
+          const ok = RESULTS[t.id].pass;
+          h += '<td><button type="button" class="cell ' + (ok ? 'pass' : 'fail') + on + '" data-req="' + r.id + '" aria-label="' + r.id + ' and ' + t.id + ': ' + (ok ? 'passed' : 'failed') + '">' + (ok ? '✓' : '✕') + '</button></td>';
+        } else {
+          h += '<td class="' + (gap ? 'gap' : '') + '"><span class="cell none"></span></td>';
+        }
+      });
+      h += '<td class="cov">' + (gap ? '<span class="chip fail">No test</span>' : r.tests.length + (r.tests.length === 1 ? ' test' : ' tests')) + '</td><td class="regc">' + regShort(r.reg) + '</td></tr>';
+    });
+    $('#matrix').innerHTML = h + '</tbody>';
+  }
+  function renderImpact() {
+    const r = reqById(selReq);
+    const related = r.conflict ? reqById(r.conflict) : null;
+    const set = {};
+    r.tests.forEach(t => { set[t] = 1; });
+    if (related) related.tests.forEach(t => { set[t] = 1; });
+    const ids = Object.keys(set).sort();
+    const chip = t => '<li><span class="chip ' + (RESULTS[t].pass ? 'pass' : 'fail') + ' mono">' + t + '</span></li>';
+    $('#impact').innerHTML = '<div style="display:flex;flex-direction:column;gap:12px">' +
+      '<p><b class="mono" style="color:var(--accent-text)">' + r.id + '</b> ' + esc(r.text) + '</p>' +
+      '<div class="kv"><span class="k">Tests to re-run if this changes</span>' + (ids.length ? '<ul>' + ids.map(chip).join('') + '</ul><span class="sub">' + ids.length + ' tests' + (related ? ', including those of ' + related.id + ', which conflicts with it' : '') + '.</span>' : '<span class="sub">None. This requirement has no test yet.</span>') + '</div>' +
+      '<div class="kv"><span class="k">Regulation</span><span>' + (r.reg ? esc(r.reg) : 'No regulation linked.') + '</span></div>' +
+      (related ? '<div class="kv"><span class="k">Related requirement</span><button class="rowbtn" style="width:auto" type="button" data-req="' + related.id + '"><b>' + related.id + '</b>' + esc(related.text) + '</button></div>' : '') +
+      '</div>';
+  }
+  function pickMatrixReq(id) { selReq = id; renderMatrix(); renderImpact(); renderReqTable(); renderReqDetail(); }
+  $('#matrix').addEventListener('click', e => { const b = e.target.closest('[data-req]'); if (b) pickMatrixReq(b.dataset.req); });
+  $('#impact').addEventListener('click', e => { const b = e.target.closest('[data-req]'); if (b) pickMatrixReq(b.dataset.req); });
+
+  /* ---------- Simulator ---------- */
+  const S = { speed: 62, lux: 5, oncoming: true, camera: true, speedValid: true, d: 250, off: 0, det: false, state: 'LOW', why: '', paused: reduceMotion, t: 0 };
+  let samples = [], canRows = [], acc = 0, tick = 0;
+
+  function rr(ctx, x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function poly(ctx, pts) { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]); ctx.closePath(); }
+  function drawScene(c) {
+    if (!c.width) return;
+    const ctx = c.getContext('2d');
+    ctx.save();
+    ctx.scale(c.width / 640, c.height / 480);
+    ctx.fillStyle = '#05080c'; ctx.fillRect(0, 0, 640, 480);
+    const L = 150, R = 490, M = 320;
+    ctx.fillStyle = '#0d141c'; ctx.fillRect(L, 0, R - L, 480);
+    ctx.fillStyle = '#2c3948'; ctx.fillRect(L - 3, 0, 3, 480); ctx.fillRect(R, 0, 3, 480);
+    ctx.strokeStyle = '#3b4a5c'; ctx.lineWidth = 3; ctx.setLineDash([26, 22]); ctx.lineDashOffset = S.off % 48;
+    ctx.beginPath(); ctx.moveTo(M, 480); ctx.lineTo(M, 0); ctx.stroke(); ctx.setLineDash([]);
+    // 150 m detection line
+    const y150 = 368 - 150 * 0.9;
+    ctx.strokeStyle = '#33465a'; ctx.lineWidth = 1; ctx.setLineDash([4, 5]);
+    ctx.beginPath(); ctx.moveTo(L, y150); ctx.lineTo(R, y150); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#6b7e94'; ctx.font = '500 12px "IBM Plex Mono", monospace'; ctx.textAlign = 'right'; ctx.fillText('150 m', L - 10, y150 + 4);
+
+    const ex = 235, ly = 374, ox = 405, st = S.state;
+    // ego beam (left-hand traffic: low beam kicks up to the left verge)
+    if (st !== 'OFF') {
+      let pts, len, rgb, a;
+      if (st === 'HIGH') { pts = [[ex - 12, ly], [ex - 105, ly - 345], [ex + 105, ly - 345], [ex + 12, ly]]; len = 345; rgb = '214,232,255'; a = 0.62; }
+      else { pts = [[ex - 12, ly], [ex - 130, ly - 120], [ex - 80, ly - 205], [ex + 75, ly - 185], [ex + 12, ly]]; len = 205; rgb = st === 'FALLBACK' ? '255,205,130' : '255,243,210'; a = st === 'FALLBACK' ? 0.4 : 0.55; }
+      const g = ctx.createLinearGradient(0, ly, 0, ly - len);
+      g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+      ctx.fillStyle = g; poly(ctx, pts); ctx.fill();
+      const pool = ctx.createRadialGradient(ex, ly - 18, 4, ex, ly - 18, 80);
+      pool.addColorStop(0, 'rgba(' + rgb + ',0.28)'); pool.addColorStop(1, 'rgba(' + rgb + ',0)');
+      ctx.fillStyle = pool; ctx.fillRect(ex - 90, ly - 100, 180, 120);
+    }
+    // oncoming vehicle
+    if (S.oncoming) {
+      const yF = 368 - S.d * 0.9;
+      if (yF > -10 && yF < 540) {
+        const gb = ctx.createLinearGradient(0, yF, 0, yF + 140);
+        gb.addColorStop(0, 'rgba(255,244,214,0.3)'); gb.addColorStop(1, 'rgba(255,244,214,0)');
+        ctx.fillStyle = gb; poly(ctx, [[ox - 12, yF], [ox - 70, yF + 140], [ox + 70, yF + 140], [ox + 12, yF]]); ctx.fill();
+        rr(ctx, ox - 17, yF - 64, 34, 64, 7); ctx.fillStyle = '#27323f'; ctx.fill(); ctx.strokeStyle = '#44566b'; ctx.lineWidth = 1.5; ctx.stroke();
+        rr(ctx, ox - 12, yF - 46, 24, 14, 3); ctx.fillStyle = '#101820'; ctx.fill();
+        [-10, 10].forEach(dx => {
+          const gl = ctx.createRadialGradient(ox + dx, yF, 1, ox + dx, yF, 26);
+          gl.addColorStop(0, 'rgba(255,250,235,0.95)'); gl.addColorStop(1, 'rgba(255,250,235,0)');
+          ctx.fillStyle = gl; ctx.fillRect(ox + dx - 28, yF - 28, 56, 56);
+        });
+      }
+    }
+    // ego vehicle
+    rr(ctx, ex - 17, 372, 34, 64, 7); ctx.fillStyle = '#27323f'; ctx.fill(); ctx.strokeStyle = '#44566b'; ctx.lineWidth = 1.5; ctx.stroke();
+    rr(ctx, ex - 12, 384, 24, 14, 3); ctx.fillStyle = '#101820'; ctx.fill();
+    ctx.fillStyle = st === 'OFF' ? '#3a4656' : '#fff6dc';
+    ctx.fillRect(ex - 14, 372, 7, 4); ctx.fillRect(ex + 7, 372, 7, 4);
+    ctx.restore();
+  }
+
+  function tok(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function drawTimeline() {
+    const c = $('#timeline');
+    if (!c || cur !== 'simulator' || !c.width) return;
+    const ctx = c.getContext('2d'), d = c._d || 1, w = c.width / d, h = c.height / d;
+    ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, w, h);
+    const line = tok('--line'), soft = tok('--line-soft'), muted = tok('--fg-muted'), faint = tok('--fg-faint'), acc = tok('--accent-text'), rev = tok('--review');
+    const N = 150, pl = 76, pr = 10, pt = 8, pb = 20, pw = w - pl - pr, ph = h - pt - pb;
+    const s0 = pt, s1 = pt + ph * 0.5 - 8, b0 = pt + ph * 0.5 + 8, b1 = pt + ph;
+    const X = i => pl + pw - (samples.length - 1 - i) / (N - 1) * pw;
+    ctx.font = '400 11px "IBM Plex Mono", monospace';
+    // oncoming bands
+    ctx.fillStyle = rev; ctx.globalAlpha = 0.16;
+    let start = -1;
+    for (let i = 0; i <= samples.length; i++) {
+      const on = i < samples.length && samples[i].on;
+      if (on && start < 0) start = i;
+      if (!on && start >= 0) { ctx.fillRect(X(start), pt, Math.max(2, X(i - 1) - X(start)), ph); start = -1; }
+    }
+    ctx.globalAlpha = 1;
+    // grid + labels
+    ctx.strokeStyle = soft; ctx.lineWidth = 1; ctx.textAlign = 'right'; ctx.fillStyle = faint;
+    [0, 70, 140].forEach(v => { const y = s1 - v / 140 * (s1 - s0); ctx.beginPath(); ctx.moveTo(pl, y); ctx.lineTo(w - pr, y); ctx.stroke(); ctx.fillText(String(v), pl - 8, y + 4); });
+    ['OFF', 'FALLBACK', 'LOW', 'HIGH'].forEach((nm, i) => { const y = b1 - i / 3 * (b1 - b0); ctx.beginPath(); ctx.moveTo(pl, y); ctx.lineTo(w - pr, y); ctx.stroke(); ctx.fillText(nm, pl - 8, y + 4); });
+    ctx.strokeStyle = line; ctx.beginPath(); ctx.moveTo(pl, s1); ctx.lineTo(w - pr, s1); ctx.moveTo(pl, b1); ctx.lineTo(w - pr, b1); ctx.stroke();
+    if (samples.length > 1) {
+      // speed area + line
+      ctx.beginPath();
+      samples.forEach((p, i) => { const y = s1 - p.sp / 140 * (s1 - s0); if (i === 0) ctx.moveTo(X(i), y); else ctx.lineTo(X(i), y); });
+      ctx.strokeStyle = muted; ctx.lineWidth = 1.8; ctx.stroke();
+      ctx.lineTo(X(samples.length - 1), s1); ctx.lineTo(X(0), s1); ctx.closePath();
+      ctx.fillStyle = muted; ctx.globalAlpha = 0.12; ctx.fill(); ctx.globalAlpha = 1;
+      // beam state steps
+      ctx.beginPath();
+      samples.forEach((p, i) => { const y = b1 - STATE_CODE[p.state] / 3 * (b1 - b0); if (i === 0) ctx.moveTo(X(i), y); else { ctx.lineTo(X(i), ctx._py); ctx.lineTo(X(i), y); } ctx._py = y; });
+      ctx.strokeStyle = acc; ctx.lineWidth = 2; ctx.stroke();
+      const last = samples[samples.length - 1];
+      const ey = b1 - STATE_CODE[last.state] / 3 * (b1 - b0);
+      ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(X(samples.length - 1), ey, 3.5, 0, 6.2832); ctx.fill();
+      const sy = s1 - last.sp / 140 * (s1 - s0);
+      ctx.fillStyle = muted; ctx.beginPath(); ctx.arc(X(samples.length - 1), sy, 3.5, 0, 6.2832); ctx.fill();
+    }
+    ctx.fillStyle = faint; ctx.textAlign = 'left'; ctx.fillText('−30 s', pl, h - 5); ctx.textAlign = 'right'; ctx.fillText('now', w - pr, h - 5);
+  }
+
+  const hex = n => (n & 255).toString(16).toUpperCase().padStart(2, '0');
+  function pushCan() {
+    const sp = Math.round(S.speed * 100), lx = Math.round(S.lux);
+    const t = S.t.toFixed(1).padStart(5, ' ');
+    const fr = [
+      ['0x1F0', 'VEH_SPEED ', hex(sp) + ' ' + hex(sp >> 8) + ' ' + (S.speedValid ? '00' : '01')],
+      ['0x2A4', 'ONCOMING  ', S.det ? '01' : '00'],
+      ['0x2B0', 'AMB_LUX   ', hex(lx) + ' ' + hex(lx >> 8)],
+      ['0x3C0', 'HDLP_CMD  ', hex(STATE_CODE[S.state]) + ' ' + (S.camera ? '01' : '00')]
+    ];
+    fr.forEach(f => canRows.push('<span class="tm">' + t + '</span>  <span class="id">' + f[0] + '</span>  ' + f[1] + ' ' + f[2]));
+    if (canRows.length > 8) canRows = canRows.slice(canRows.length - 8);
+  }
+  function renderCan() { $('#can').innerHTML = canRows.join('\n'); }
+
+  function renderStates() {
+    $('#states').innerHTML = ['OFF', 'LOW', 'HIGH', 'FALLBACK'].map(k => '<div class="st ' + (S.state === k ? 'on' : '') + '"' + (S.state === k ? ' aria-current="true"' : '') + '><b>' + STATE_NAME[k] + '</b><span>cmd 0x0' + STATE_CODE[k] + '</span></div>').join('');
+  }
+  function syncUI() {
+    $('#hud-state').textContent = STATE_NAME[S.state];
+    $('#hud-why').textContent = S.why;
+    $('#hud-speed').textContent = S.speedValid ? Math.round(S.speed) : '--';
+    $('#mini-chip').textContent = STATE_NAME[S.state];
+    $('#mini-why').textContent = S.why;
+    renderStates();
+  }
+  function compute() {
+    S.det = S.oncoming && S.d <= 150 && S.d >= -10;
+    const r = ecu({ speed: S.speed, lux: S.lux, oncoming: S.det, camera: S.camera, speedValid: S.speedValid });
+    if (r.state !== S.state || r.why !== S.why) { S.state = r.state; S.why = r.why; syncUI(); }
+  }
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (!S.paused) {
+      S.t += dt;
+      S.off += (S.speed / 3.6) * dt * 5;
+      if (S.oncoming) { S.d -= ((S.speed + 60) / 3.6) * dt; if (S.d < -40) S.d = 320; }
+      acc += dt;
+      if (acc >= 0.2) {
+        acc -= 0.2; tick++;
+        compute();
+        samples.push({ sp: S.speedValid ? S.speed : 0, on: S.det, state: S.state });
+        if (samples.length > 150) samples.shift();
+        if (tick % 2 === 0) pushCan();
+        if (cur === 'simulator') { drawTimeline(); renderCan(); }
+      }
+    }
+    compute();
+    if (cur === 'simulator') drawScene($('#scene'));
+    if (cur === 'overview') drawScene($('#scene-mini'));
+    requestAnimationFrame(frame);
+  }
+
+  function fit(c) {
+    const r = c.getBoundingClientRect();
+    if (!r.width) return false;
+    const d = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.round(r.width * d), h = Math.round(r.height * d);
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    c._d = d; return true;
+  }
+  function fitAll() { ['#scene-mini', '#scene', '#timeline'].forEach(s => { fit($(s)); }); drawTimeline(); }
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => { fitAll(); });
+    ['#scene-mini', '#scene', '#timeline'].forEach(s => ro.observe($(s)));
+  }
+  window.addEventListener('resize', fitAll);
+
+  $('#sim-speed').addEventListener('input', e => { S.speed = +e.target.value; $('#sim-speed-out').textContent = S.speed + ' km/h'; compute(); syncUI(); });
+  $('#lux-seg').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    S.lux = +b.dataset.lux;
+    $$('#lux-seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    $('#lux-out').textContent = S.lux.toLocaleString('en-US') + ' lux';
+    compute(); syncUI();
+  });
+  $('#sw-onc').addEventListener('change', e => { S.oncoming = e.target.checked; if (S.oncoming) S.d = 320; compute(); syncUI(); });
+  $('#sw-cam').addEventListener('change', e => { S.camera = e.target.checked; compute(); syncUI(); });
+  $('#sw-spd').addEventListener('change', e => { S.speedValid = e.target.checked; compute(); syncUI(); });
+  function setPause(p) { S.paused = p; $('#pause').textContent = p ? 'Play scene' : 'Pause scene'; }
+  $('#pause').addEventListener('click', () => setPause(!S.paused));
+
+  /* ---------- Tests and triage ---------- */
+  function renderTests(live) {
+    $('#test-body').innerHTML = TESTS.map(t => {
+      const r = RESULTS[t.id];
+      const res = live && live[t.id] === 'run' ? '<span class="chip amber">Running</span>' : '<span class="chip ' + (r.pass ? 'pass' : 'fail') + '">' + (r.pass ? 'Pass' : 'Fail') + '</span>';
+      const hide = live && live[t.id] === 'wait';
+      return '<tr><td class="id">' + t.id + '</td><td class="id">' + t.req + '</td><td>' + esc(t.name) + (t.assumed ? ' <span class="chip review">Assumed limit</span>' : '') + '</td><td>' + (hide ? '' : esc(r.expected)) + '</td><td>' + (hide ? '' : esc(r.actual)) + '</td><td>' + (hide ? '<span class="chip">Queued</span>' : res) + '</td></tr>';
+    }).join('');
+  }
+  function renderTriage() {
+    const failed = TESTS.filter(t => !RESULTS[t.id].pass);
+    const el = $('#triage');
+    if (!failed.length) { el.innerHTML = '<div class="triage ok"><h3>All ' + TESTS.length + ' tests pass</h3><p class="sub">Try the other threshold. Each setting breaks the tests of one of the two conflicting requirements.</p></div>'; return; }
+    el.innerHTML = failed.map(t => {
+      const rq = reqById(t.req);
+      let cause, body, act = '';
+      if (rq.flags.indexOf('conflict') > -1) {
+        const o = reqById(rq.conflict);
+        cause = 'Requirement conflict, not a test or simulator fault';
+        body = t.id + ' follows ' + rq.id + ', but ' + o.id + ' demands the opposite for the same condition. The simulator is set to ' + ECU_CFG.hiSpeed + ' km/h. Whichever value you choose, tests of one of the two requirements fail.';
+        act = '<button class="btn primary" type="button" data-appr="A-102">Open conflict in approvals</button>';
+      } else if (t.assumed) {
+        cause = 'Test uses an assumed value';
+        body = t.id + ' guessed a limit that the requirement does not state. Confirm the value with the requirement owner.';
+      } else {
+        cause = 'Cause not clear';
+        body = 'Check the test expectation and the simulator logic for ' + t.id + '.';
+      }
+      return '<div class="triage"><div><span class="chip fail mono">' + t.id + '</span> <span class="chip">Expected ' + esc(RESULTS[t.id].expected) + ', got ' + esc(RESULTS[t.id].actual) + '</span></div><h3>' + cause + '</h3><p style="color:var(--fg-muted)">' + esc(body) + '</p>' + (act ? '<div class="acts">' + act + '</div>' : '') + '</div>';
+    }).join('');
+  }
+  function refreshTests() { runAll(); renderTests(); renderTriage(); renderKPIs(); renderMatrix(); renderImpact(); renderReqTable(); renderReqDetail(); settleLogOnly(); }
+  function settleLogOnly() { if (!running) settlePipeline(); }
+  let suiteRunning = false;
+  async function runSuite() {
+    if (suiteRunning) return;
+    suiteRunning = true;
+    const btn = $('#run-tests'); btn.disabled = true;
+    runAll();
+    const live = {}; TESTS.forEach(t => { live[t.id] = 'wait'; });
+    renderTests(live);
+    for (const t of TESTS) {
+      live[t.id] = 'run'; renderTests(live);
+      await wait(reduceMotion ? 10 : 110);
+      live[t.id] = 'done'; renderTests(live);
+    }
+    renderTests(); renderTriage(); renderKPIs(); renderMatrix(); renderImpact(); renderReqTable(); renderReqDetail(); settleLogOnly();
+    const failN = TESTS.filter(t => !RESULTS[t.id].pass).length;
+    toast((TESTS.length - failN) + ' of ' + TESTS.length + ' passed. ' + (failN ? failN + ' sent to triage.' : 'No failures.'));
+    btn.disabled = false; suiteRunning = false;
+  }
+  $('#run-tests').addEventListener('click', runSuite);
+  $('#thr-seg').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    ECU_CFG.hiSpeed = +b.dataset.thr;
+    $$('#thr-seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    refreshTests(); compute(); S.why = ''; compute();
+    toast('Threshold set to ' + ECU_CFG.hiSpeed + ' km/h. Suite re-run.');
+  });
+
+  /* ---------- Approvals ---------- */
+  let selAppr = 'A-101', editing = false;
+  function diffWords(a, b) {
+    const A = a.split(/(\s+)/).filter(x => x !== ''), B = b.split(/(\s+)/).filter(x => x !== '');
+    const m = A.length, n = B.length;
+    const dp = []; for (let i = 0; i <= m; i++) dp.push(new Array(n + 1).fill(0));
+    for (let i = m - 1; i >= 0; i--) for (let j = n - 1; j >= 0; j--) dp[i][j] = A[i] === B[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    const L = [], Rr = []; let i = 0, j = 0;
+    while (i < m && j < n) {
+      if (A[i] === B[j]) { L.push(esc(A[i])); Rr.push(esc(B[j])); i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) { L.push('<del>' + esc(A[i]) + '</del>'); i++; }
+      else { Rr.push('<ins>' + esc(B[j]) + '</ins>'); j++; }
+    }
+    while (i < m) { L.push('<del>' + esc(A[i]) + '</del>'); i++; }
+    while (j < n) { Rr.push('<ins>' + esc(B[j]) + '</ins>'); j++; }
+    return { left: L.join(''), right: Rr.join('') };
+  }
+  const STAT = { pending: ['Needs review', 'review'], approved: ['Approved', 'pass'], rejected: ['Rejected', 'fail'] };
+  function renderApprovals() {
+    $('#alist').innerHTML = APPROVALS.map(a => '<button type="button" class="aitem ' + (a.id === selAppr ? 'sel' : '') + '" data-a="' + a.id + '"><span class="t">' + esc(a.title) + '</span><span class="m"><span class="mono">' + a.id + ' · ' + a.req + ' · ' + a.kind + '</span><span class="chip ' + STAT[a.status][1] + '">' + STAT[a.status][0] + '</span></span></button>').join('');
+    const a = APPROVALS.find(x => x.id === selAppr);
+    const done = a.status !== 'pending';
+    let body;
+    if (editing) {
+      body = '<div class="kv"><label class="k" for="edit-text">Edit the proposal</label><textarea id="edit-text">' + esc(a.prop) + '</textarea></div>';
+    } else if (a.orig) {
+      const d = diffWords(a.orig, a.prop);
+      body = '<div class="diffs"><div class="diffbox"><div class="k label">Current</div><p>' + d.left + '</p></div><div class="diffbox"><div class="k label">Agent proposal</div><p>' + d.right + '</p></div></div>';
+    } else {
+      body = '<div class="diffbox"><div class="k label">Agent proposal</div>' + (a.kind === 'New test' ? '<pre>' + esc(a.prop) + '</pre>' : '<p>' + esc(a.prop) + '</p>') + '</div>';
+    }
+    const acts = editing
+      ? '<button class="btn primary" type="button" data-act="save">Save and approve</button><button class="btn" type="button" data-act="cancel">Cancel</button>'
+      : '<button class="btn good" type="button" data-act="approve"' + (done ? ' disabled' : '') + '>Approve</button><button class="btn" type="button" data-act="edit"' + (done ? ' disabled' : '') + '>Edit</button><button class="btn bad" type="button" data-act="reject"' + (done ? ' disabled' : '') + '>Reject</button>';
+    $('#adetail').innerHTML = '<div class="panel-b" style="display:flex;flex-direction:column;gap:14px">' +
+      '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><div><span class="label">' + a.kind + ' · ' + a.req + '</span><h2 style="font:600 20px/1.2 var(--font-body);margin-top:6px">' + esc(a.title) + '</h2></div><span class="chip ' + STAT[a.status][1] + '">' + STAT[a.status][0] + '</span></div>' +
+      body +
+      '<div class="kv"><span class="k">Critic</span><div class="note">' + esc(a.critic) + '<div class="meter" aria-hidden="true"><i style="width:' + a.ground + '%"></i></div><span class="sub">' + a.ground + '% of claims traced to a source</span></div></div>' +
+      '<div class="actions">' + acts + '</div></div>';
+    const c = pendingCount(), badge = $('#appr-count');
+    badge.textContent = c; badge.hidden = c === 0;
+    $('#hlog').innerHTML = DECISIONS.length ? DECISIONS.map(x => '<li><time>' + x.t + '</time>' + esc(x.m) + '</li>').join('') : '<li>No decisions yet. Every item above is waiting for an engineer.</li>';
+    renderGuards(); renderSteps();
+  }
+  function nowStr() { return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); }
+  function decide(status, verb) {
+    const a = APPROVALS.find(x => x.id === selAppr);
+    a.status = status; editing = false;
+    DECISIONS.unshift({ t: nowStr(), m: verb + ' ' + a.id + ' (' + a.title + ')' });
+    toast(verb + ' ' + a.id);
+    const next = APPROVALS.find(x => x.status === 'pending');
+    if (next) selAppr = next.id;
+    renderApprovals();
+  }
+  $('#alist').addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b) { selAppr = b.dataset.a; editing = false; renderApprovals(); } });
+  $('#adetail').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const act = b.dataset.act, a = APPROVALS.find(x => x.id === selAppr);
+    if (act === 'approve') decide('approved', 'Approved');
+    else if (act === 'reject') decide('rejected', 'Rejected');
+    else if (act === 'edit') { editing = true; renderApprovals(); const t = $('#edit-text'); if (t) t.focus(); }
+    else if (act === 'cancel') { editing = false; renderApprovals(); }
+    else if (act === 'save') { const v = $('#edit-text').value.trim(); if (v) a.prop = v; decide('approved', 'Edited and approved'); }
+  });
+
+  /* ---------- Command palette ---------- */
+  let palIdx = 0, palItems = [];
+  function palBuild() {
+    const q = $('#pal-q').value.trim().toLowerCase();
+    const all = Object.keys(VIEWS).map(k => ({ g: 'Section', b: '', t: VIEWS[k][0], run: () => go(k) }))
+      .concat(REQS.map(r => ({ g: 'Requirement', b: r.id, t: r.text.length > 54 ? r.text.slice(0, 53) + '…' : r.text, run: () => { selReq = r.id; renderReqTable(); renderReqDetail(); renderMatrix(); renderImpact(); go('requirements'); } })));
+    palItems = all.filter(i => !q || (i.b + ' ' + i.t).toLowerCase().indexOf(q) > -1).slice(0, 12);
+    palIdx = Math.min(palIdx, Math.max(0, palItems.length - 1));
+    $('#pal-list').innerHTML = palItems.map((i, n) => '<li><button type="button" data-n="' + n + '" aria-selected="' + (n === palIdx) + '"><span>' + (i.b ? '<b>' + i.b + '</b>' : '') + esc(i.t) + '</span><span class="g">' + i.g + '</span></button></li>').join('') || '<li class="sub" style="padding:10px">Nothing matches.</li>';
+  }
+  function palOpen() { $('#pal').hidden = false; $('#pal-q').value = ''; palIdx = 0; palBuild(); $('#pal-q').focus(); }
+  function palClose() { $('#pal').hidden = true; }
+  function palRun(n) { const i = palItems[n]; if (i) { palClose(); i.run(); } }
+  $('#open-pal').addEventListener('click', palOpen);
+  $('#open-pal-2').addEventListener('click', palOpen);
+  $('#pal').addEventListener('click', e => { if (e.target === $('#pal')) palClose(); const b = e.target.closest('[data-n]'); if (b) palRun(+b.dataset.n); });
+  $('#pal-q').addEventListener('input', () => { palIdx = 0; palBuild(); });
+  $('#pal-q').addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); palIdx = Math.min(palItems.length - 1, palIdx + 1); palBuild(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); palIdx = Math.max(0, palIdx - 1); palBuild(); }
+    else if (e.key === 'Enter') { e.preventDefault(); palRun(palIdx); }
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if ($('#pal').hidden) palOpen(); else palClose(); }
+    else if (e.key === 'Escape' && !$('#pal').hidden) palClose();
+  });
+
+  /* ---------- Init ---------- */
+  renderKPIs(); renderEvals(); renderGuards(); settlePipeline();
+  renderFilters(); renderReqTable(); renderReqDetail();
+  renderMatrix(); renderImpact();
+  renderTests(); renderTriage();
+  renderApprovals();
+  S.why = ''; compute(); syncUI();
+  for (let i = 0; i < 60; i++) samples.push({ sp: S.speed, on: false, state: 'LOW' });
+  pushCan(); renderCan();
+  if (S.paused) setPause(true);
+  const h0 = location.hash.replace('#', '');
+  go(VIEWS[h0] ? h0 : 'overview', true);
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>

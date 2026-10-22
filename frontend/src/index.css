@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@layer base {
+  :root, .dark {
+    /* Foundation */
+    --bg-base: #0B100E;
+    --bg-sidebar: #0E1513;
+    --bg-surface: #121A18;
+    --bg-surface-elevated: #16221F;
+    --bg-surface-hover: #1C2B27;
+    --border-subtle: #202F2B;
+    --border-strong: #2D413C;
+
+    /* Typography */
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+
+    /* Primary Accent: Luminous Warm Gold */
+    --accent: #F59E0B;
+    --accent-hover: #FBBF24;
+    --accent-highlight: #FDE68A;
+    --accent-subtle: rgba(245, 158, 11, 0.12);
+    --accent-strong: rgba(245, 158, 11, 0.22);
+    --accent-border: rgba(245, 158, 11, 0.35);
+    --accent-text: #F59E0B;
+
+    /* Secondary Accent: Electric Technical Cyan */
+    --cyan: #00B8D9;
+    --cyan-subtle: rgba(0, 184, 217, 0.12);
+    --cyan-border: rgba(0, 184, 217, 0.30);
+
+    /* Semantic: Passed / Compliant / Healthy - Emerald */
+    --success: #10B981;
+    --success-subtle: rgba(16, 185, 129, 0.12);
+    --success-border: rgba(16, 185, 129, 0.30);
+
+    /* Semantic: Failed / Defects - Coral Red */
+    --failure: #EF4444;
+    --failure-subtle: rgba(239, 68, 68, 0.12);
+    --failure-border: rgba(239, 68, 68, 0.30);
+
+    /* Semantic: Warnings / Ambiguity - Amber */
+    --warning: #F59E0B;
+    --warning-subtle: rgba(245, 158, 11, 0.12);
+    --warning-border: rgba(245, 158, 11, 0.30);
+  }
+
+  /* Light theme fallback */
+  .light {
+    --bg-base: #F8FAFC;
+    --bg-sidebar: #F1F5F9;
+    --bg-surface: #FFFFFF;
+    --bg-surface-elevated: #F8FAFC;
+    --bg-surface-hover: #E2E8F0;
+    --border-subtle: #CBD5E1;
+    --border-strong: #94A3B8;
+
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+
+    --accent: #D97706;
+    --accent-hover: #B45309;
+    --accent-highlight: #F59E0B;
+    --accent-subtle: rgba(217, 119, 6, 0.14);
+    --accent-strong: rgba(217, 119, 6, 0.25);
+    --accent-border: rgba(217, 119, 6, 0.4);
+    --accent-text: #B45309;
+
+    --cyan: #0284C7;
+    --cyan-subtle: rgba(2, 132, 199, 0.12);
+    --cyan-border: rgba(2, 132, 199, 0.35);
+
+    --success: #059669;
+    --success-subtle: rgba(5, 150, 105, 0.12);
+    --success-border: rgba(5, 150, 105, 0.35);
+
+    --failure: #DC2626;
+    --failure-subtle: rgba(220, 38, 38, 0.12);
+    --failure-border: rgba(220, 38, 38, 0.35);
+
+    --warning: #D97706;
+    --warning-subtle: rgba(217, 119, 6, 0.12);
+    --warning-border: rgba(217, 119, 6, 0.35);
+  }
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  letter-spacing: -0.011em;
+  font-size: 13.5px;
+  line-height: 1.55;
+  font-weight: 450;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Modern sleek scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #202F2B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2E423D;
+}
+
+/* Glassmorphism & Elevation */
+.card-gradient {
+  background: linear-gradient(180deg, #141D1B 0%, #101816 100%);
+  border: 1px solid #202F2B;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+}
+
+.card-elevated-gradient {
+  background: linear-gradient(180deg, #182320 0%, #131C1A 100%);
+  border: 1px solid #283B36;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* Interactive Canvas Dot Grid */
+.bg-canvas-grid {
+  background-color: #0B100E;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.15s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

@@ -1,0 +1,84 @@
+# Environment and sensitive keys
+.env
+*.env
+*.env.local
+.env.*.local
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Databases & local storage
+*.db
+*.sqlite
+*.sqlite3
+safespec.db
+safespec_checkpoints.db
+backend/safespec.db
+backend/safespec_checkpoints.db
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.env
+frontend/*.local
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
+.tmp/
+
+# Generated runtime documents & reports (preserve sample_requirements.pdf)
+backend/app/reports/report_*.md
+backend/app/reports/report_*.pdf
+backend/documents/RUN-*
+backend/documents/DEMO-*
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.agents/

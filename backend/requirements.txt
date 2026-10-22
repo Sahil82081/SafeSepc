@@ -1,0 +1,17 @@
+fastapi>=0.115.0
+uvicorn>=0.32.0
+pydantic>=2.10.0
+sqlalchemy>=2.0.36
+python-dotenv>=1.0.1
+google-genai>=0.1.1
+langchain-google-genai>=2.0.0
+langgraph>=0.2.0
+z3-solver>=4.13.0
+pytest>=8.3.0
+PyMuPDF>=1.24.0
+python-can>=4.4.0
+numpy>=2.0.0
+sse-starlette>=2.1.0
+mutmut>=2.4.0
+langgraph-checkpoint-sqlite>=3.1.0
+python-multipart>=0.0.20
