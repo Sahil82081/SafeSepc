@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import {
+  AlertCircle,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -7,7 +8,9 @@ import {
   FileCheck,
   FileText,
   Loader2,
+  PauseCircle,
   Shield,
+  ShieldAlert,
   UploadCloud,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -45,15 +48,28 @@ export function UploadPage() {
     { id: 'simulate', label: '5. Virtual ECU Simulation', icon: Cpu },
   ]
 
-  const getStageIndex = (stageName?: string) => {
+  const getStageIndex = (stageName?: string, status?: string) => {
     if (!stageName) return 0
-    if (stageName === 'completed') return stages.length
-    const idx = stages.findIndex((s) => stageName.toLowerCase().includes(s.id))
-    return idx >= 0 ? idx + 1 : 1
+    if (status === 'completed' || stageName === 'completed') return stages.length
+    const name = stageName.toLowerCase()
+    if (name.includes('uploaded')) return 1
+    if (name.includes('extract')) return 2
+    if (name.includes('formalize')) return 3
+    if (name.includes('z3') || name.includes('safety_gate')) return 4
+    if (name.includes('simulate') || name.includes('tester') || name.includes('diagnosis')) return 5
+    return 1
   }
 
-  const currentStageIndex = getStageIndex(runData?.pipeline_stage)
+  const currentStageIndex = getStageIndex(runData?.pipeline_stage, runData?.status)
   const isCompleted = runData?.status === 'completed'
+  const isPaused = runData?.status === 'paused'
+  const isFailed = runData?.status === 'failed'
+  const isRunning =
+    runData?.status === 'running' ||
+    runData?.status === 'pending' ||
+    isUploading ||
+    uploadMutation.isPending ||
+    startMutation.isPending
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -256,13 +272,13 @@ export function UploadPage() {
             {/* Primary Action Button */}
             <Button
               type="submit"
-              disabled={!file || isUploading || uploadMutation.isPending || startMutation.isPending}
-              className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold py-2.5 h-10 hover:from-amber-300 hover:to-amber-400 shadow-sm transition"
+              disabled={!file || isRunning}
+              className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold py-2.5 h-10 hover:from-amber-300 hover:to-amber-400 shadow-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isUploading || uploadMutation.isPending || startMutation.isPending ? (
+              {isRunning ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  <span>Starting Safety Verification...</span>
+                  <span>Verification Running in Background...</span>
                 </>
               ) : (
                 <>
@@ -282,12 +298,24 @@ export function UploadPage() {
               <CardTitle className="text-sm font-bold text-[#F8FAFC]">
                 Verification Progress
               </CardTitle>
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                isCompleted
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 animate-pulse'
-              }`}>
-                {isCompleted ? '✓ Completed' : 'Analyzing...'}
+              <span
+                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  isCompleted
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                    : isPaused
+                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                      : isFailed
+                        ? 'bg-red-500/10 text-red-400 border border-red-500/30'
+                        : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 animate-pulse'
+                }`}
+              >
+                {isCompleted
+                  ? '✓ Completed'
+                  : isPaused
+                    ? '⏸ Awaiting Safety Sign-off'
+                    : isFailed
+                      ? '✗ Verification Error'
+                      : 'Analyzing...'}
               </span>
             </div>
           </CardHeader>
@@ -305,7 +333,11 @@ export function UploadPage() {
                       isPast
                         ? 'border-emerald-500/30 bg-emerald-500/5 text-[#F8FAFC]'
                         : isCurrent
-                          ? 'border-amber-500/40 bg-amber-500/10 text-amber-400 font-semibold'
+                          ? isFailed
+                            ? 'border-red-500/40 bg-red-500/10 text-red-400 font-semibold'
+                            : isPaused
+                              ? 'border-amber-500/40 bg-amber-500/10 text-amber-400 font-semibold'
+                              : 'border-amber-500/40 bg-amber-500/10 text-amber-400 font-semibold'
                           : 'border-transparent text-[#64748B]'
                     }`}
                   >
@@ -314,12 +346,67 @@ export function UploadPage() {
                       <span className="text-xs">{stage.label}</span>
                     </div>
                     {isPast && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
-                    {isCurrent && <Loader2 className="h-4 w-4 animate-spin text-amber-400" />}
+                    {isCurrent && (
+                      <>
+                        {isFailed ? (
+                          <AlertCircle className="h-4 w-4 text-red-400" />
+                        ) : isPaused ? (
+                          <PauseCircle className="h-4 w-4 text-amber-400" />
+                        ) : (
+                          <Loader2 className="h-4 w-4 animate-spin text-amber-400" />
+                        )}
+                      </>
+                    )}
                   </div>
                 )
               })}
             </div>
 
+            {/* Human Engineering Gate Paused Callout */}
+            {isPaused && (
+              <div className="p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 space-y-2.5">
+                <div className="flex items-center gap-2 text-amber-400 font-semibold text-xs sm:text-sm">
+                  <ShieldAlert className="h-4 w-4 shrink-0" />
+                  <span>Human Safety Gate Active (Paused)</span>
+                </div>
+                <p className="text-xs text-[#CBD5E1]">
+                  Verification is held at the engineering safety gate for formal sign-off on ASIL C/D requirements or Z3 detected contradictions.
+                </p>
+                <Button
+                  type="button"
+                  onClick={() => navigate('/approvals')}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-1.5 px-3.5 text-xs inline-flex items-center gap-1.5"
+                >
+                  <span>Open Approvals Gate →</span>
+                </Button>
+              </div>
+            )}
+
+            {/* Failure Callout */}
+            {isFailed && (
+              <div className="p-4 rounded-xl border border-red-500/40 bg-red-500/10 space-y-2.5">
+                <div className="flex items-center gap-2 text-red-400 font-semibold text-xs sm:text-sm">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>Pipeline Execution Error</span>
+                </div>
+                <p className="text-xs text-red-200">
+                  Verification pipeline encountered an error during analysis. Check server logs or restart verification.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setActiveRunId(null)
+                    setErrorMsg(null)
+                  }}
+                  className="border-red-500/30 text-red-300 hover:bg-red-500/20 text-xs"
+                >
+                  <span>Reset &amp; Try Again</span>
+                </Button>
+              </div>
+            )}
+
+            {/* Completion Button */}
             {isCompleted && (
               <Button
                 onClick={() => navigate('/verification')}

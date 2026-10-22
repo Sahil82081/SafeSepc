@@ -186,7 +186,9 @@ Guidelines:
 
 2. For restrictive requirements stating 'only above X' or 'below X shall remain low beam/unlocked', formalize the restriction: condition: {{"var": "<var>", "op": "<", "value": X}}, action: {{"var": "<actuator>", "op": "=", "value": "LOW" or "UNLOCKED"}}.
 
-3. If the requirement can be formalized, return:
+3. For compound requirements specifying multiple conditions (e.g. 'above 30 km/h when ambient light is below 50 lux and no vehicle is ahead'), extract the primary automotive threshold condition ('speed' > 30.0) as the Rule condition so it can be formally analyzed for SMT conflicts against other speed-threshold rules. Do NOT reject requirements that contain clear, measurable quantitative thresholds.
+
+4. If the requirement can be formalized, return:
 {{
   "status": "formalized",
   "condition": {{"var": "<canonical_var_name>", "op": "<comparison op: >, >=, <, <=, ==, !=>", "value": <number, bool, or string>}},

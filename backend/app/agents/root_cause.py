@@ -245,7 +245,15 @@ Return ONLY valid JSON:
             past_memory_details = None
             if mem_res.get("memories"):
                 past_memory_found = True
-                past_memory_details = mem_res["memories"][0]
+                matching_version_mem = next(
+                    (
+                        m for m in mem_res["memories"]
+                        if ecu_version in m.get("key", "")
+                        or (isinstance(m.get("metadata"), dict) and m["metadata"].get("initial_version") == ecu_version)
+                    ),
+                    mem_res["memories"][0],
+                )
+                past_memory_details = matching_version_mem
                 self.audit_logger.log_thought(
                     cycle_id=self.cycle_id,
                     agent_name=self.agent_name,

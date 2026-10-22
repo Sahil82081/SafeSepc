@@ -43,8 +43,9 @@ def read_pdf_page(pdf_path: str, page_number: int) -> Dict[str, Any]:
     """
     try:
         target = Path(pdf_path)
-        if not target.is_absolute():
-            target = DOCUMENTS_DIR / pdf_path
+        if not target.exists():
+            if not target.is_absolute():
+                target = DOCUMENTS_DIR / pdf_path
         return parser_read_pdf_page(str(target), int(page_number))
     except Exception as exc:
         return {
@@ -67,8 +68,9 @@ def search_pdf(pdf_path: str, query: str) -> Dict[str, Any]:
     """
     try:
         target = Path(pdf_path)
-        if not target.is_absolute():
-            target = DOCUMENTS_DIR / pdf_path
+        if not target.exists():
+            if not target.is_absolute():
+                target = DOCUMENTS_DIR / pdf_path
         return parser_search_pdf(str(target), str(query))
     except Exception as exc:
         return {

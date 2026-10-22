@@ -63,7 +63,9 @@ export function useRun(
     enabled: Boolean(id),
     refetchInterval: (query) => {
       const status = query.state.data?.status
-      return status === 'running' ? 2000 : false
+      return status === 'running' || status === 'pending' || status === 'paused' || !status
+        ? 1500
+        : false
     },
     ...options,
   })

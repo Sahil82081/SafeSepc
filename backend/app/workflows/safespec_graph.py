@@ -74,6 +74,7 @@ class SafeSpecGraphState(TypedDict, total=False):
     supervisor_reason: Optional[str]
     error: Optional[str]
     completed: bool
+    extractor_attempted: bool
 
 
 class SafeSpecSupervisor:
@@ -114,8 +115,12 @@ class SafeSpecSupervisor:
         reason = ""
 
         if not reqs:
-            decision = "extractor"
-            reason = "No requirements in state. Extractor must parse the PDF."
+            if state.get("extractor_attempted"):
+                decision = "__end__"
+                reason = "PDF extraction produced 0 requirements. Halting pipeline to prevent loop."
+            else:
+                decision = "extractor"
+                reason = "No requirements in state. Extractor must parse the PDF."
         elif formalized is None:
             decision = "formalizer"
             reason = "Requirements extracted. Formalizer must convert them into Rules."
@@ -188,6 +193,7 @@ def extractor_node(state: SafeSpecGraphState) -> SafeSpecGraphState:
     return {
         **state,
         "requirements": [r.model_dump() for r in reqs],
+        "extractor_attempted": True,
     }
 
 
