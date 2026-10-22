@@ -227,13 +227,13 @@ export function ApprovalsPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-[#263632]">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-2.5 pt-2 border-t border-[#263632]">
                   <Button
                     variant="destructive"
                     size="sm"
                     disabled={rejectMutation.isPending || approveMutation.isPending}
                     onClick={() => handleReject(item.id, item.req_id)}
-                    className="gap-1.5"
+                    className="gap-1.5 w-full sm:w-auto justify-center"
                   >
                     <X className="h-3.5 w-3.5" />
                     <span>Reject &amp; Block Rule</span>
@@ -244,10 +244,10 @@ export function ApprovalsPage() {
                     size="sm"
                     disabled={approveMutation.isPending || rejectMutation.isPending}
                     onClick={() => handleApprove(item.id, item.req_id)}
-                    className="gap-1.5"
+                    className="gap-1.5 w-full sm:w-auto justify-center"
                   >
                     <Check className="h-3.5 w-3.5 stroke-[2.5]" />
-                    <span>Approve &amp; Resume LangGraph</span>
+                    <span>Approve &amp; Resume</span>
                   </Button>
                 </div>
               </div>

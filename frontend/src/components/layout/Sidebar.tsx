@@ -12,17 +12,23 @@ import {
   ShieldCheck,
   UploadCloud,
   UserCheck,
+  X,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { usePendingApprovals } from '../../api/queries'
 import { ResetButton } from '../common/ResetButton'
 
-export function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean
+  onCloseMobile?: () => void
+}
+
+export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
   const { data: pendingApprovals } = usePendingApprovals()
   const pendingCount = pendingApprovals?.length ?? 0
   const [showAdvanced, setShowAdvanced] = useState(false)
 
-  // Primary simple navigation requested by user
+  // Primary simple navigation
   const primaryNavItems = [
     { name: 'Dashboard', to: '/', icon: LayoutDashboard },
     { name: 'New Verification', to: '/upload', icon: UploadCloud },
@@ -45,21 +51,34 @@ export function Sidebar() {
     { name: 'Agent Audit Trail', to: '/activity', icon: Bot },
   ]
 
-  return (
-    <aside className="sticky top-0 flex h-screen w-60 flex-col border-r border-[#202F2B] bg-[#0E1513] p-3 transition-colors">
+  const renderNavContent = (isMobile = false) => (
+    <>
       {/* Brand Header */}
-      <div className="mb-4 flex items-center gap-2.5 px-2.5 py-2.5 border-b border-[#202F2B]">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-xs">
-          <ShieldCheck className="h-4.5 w-4.5 text-amber-400" />
+      <div className="mb-4 flex items-center justify-between px-2.5 py-2.5 border-b border-[#202F2B]">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-xs">
+            <ShieldCheck className="h-4.5 w-4.5 text-amber-400" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-[14px] tracking-tight text-[#F8FAFC]">
+              SafeSpec
+            </span>
+            <span className="text-[11px] text-[#94A3B8] font-normal tracking-tight">
+              Safety Verification
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="font-bold text-[14px] tracking-tight text-[#F8FAFC]">
-            SafeSpec
-          </span>
-          <span className="text-[11px] text-[#94A3B8] font-normal tracking-tight">
-            Safety Verification
-          </span>
-        </div>
+
+        {isMobile && onCloseMobile && (
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#64748B] hover:bg-[#182320] hover:text-[#F8FAFC] transition cursor-pointer"
+            aria-label="Close menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Primary 5-item Nav List */}
@@ -72,6 +91,7 @@ export function Sidebar() {
                 key={item.to}
                 to={item.to}
                 end={item.to === '/'}
+                onClick={() => isMobile && onCloseMobile?.()}
                 className={({ isActive }) =>
                   `group relative flex items-center justify-between rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150 ${
                     isActive
@@ -125,6 +145,7 @@ export function Sidebar() {
                   <NavLink
                     key={item.to}
                     to={item.to}
+                    onClick={() => isMobile && onCloseMobile?.()}
                     className={({ isActive }) =>
                       `group flex items-center justify-between rounded-lg px-2.5 py-1.5 text-[12px] font-normal transition-all ${
                         isActive
@@ -159,6 +180,36 @@ export function Sidebar() {
           </span>
         </div>
       </div>
-    </aside>
+    </>
+  )
+
+  return (
+    <>
+      {/* Desktop Sticky Rail Sidebar */}
+      <aside className="hidden md:flex sticky top-0 h-screen w-60 flex-col border-r border-[#202F2B] bg-[#0E1513] p-3 transition-colors shrink-0">
+        {renderNavContent(false)}
+      </aside>
+
+      {/* Mobile Slide-Out Drawer with Backdrop */}
+      {mobileOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile Navigation"
+          className="fixed inset-0 z-50 flex md:hidden"
+        >
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-xs transition-opacity animate-fade-in"
+            onClick={onCloseMobile}
+          />
+
+          {/* Drawer Body */}
+          <aside className="relative flex h-full w-[280px] max-w-[85vw] flex-col border-r border-[#202F2B] bg-[#0E1513] p-3 shadow-2xl z-10 animate-slide-right">
+            {renderNavContent(true)}
+          </aside>
+        </div>
+      )}
+    </>
   )
 }

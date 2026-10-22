@@ -253,7 +253,7 @@ export function FailuresPage() {
 
           {/* Section 3: Proposed Fix as a Code Diff */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3">
               <div>
                 <div className="flex items-center gap-1.5">
                   <GitPullRequest className="h-4 w-4 text-[#19C997]" />
@@ -264,7 +264,7 @@ export function FailuresPage() {
                 </CardDescription>
               </div>
               {patchCode && (
-                <Badge variant="success" className="font-mono text-xs">
+                <Badge variant="success" className="font-mono text-xs w-fit">
                   {riskAssessment}
                 </Badge>
               )}

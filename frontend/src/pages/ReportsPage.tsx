@@ -72,7 +72,7 @@ export function ReportsPage() {
         subtitle="Audit and compliance certification reports generated from formal proofs and test results."
         badge={report ? 'Audit Ready' : undefined}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -91,7 +91,7 @@ export function ReportsPage() {
               className="gap-1.5 border-[#263632] bg-[#182421] text-[#A8B5B1] hover:bg-[#202E2A] hover:text-[#F5F7F6]"
             >
               <Printer className="h-3.5 w-3.5" />
-              <span>Print / PDF</span>
+              <span>Print</span>
             </Button>
 
             <Button
@@ -102,7 +102,7 @@ export function ReportsPage() {
               className="gap-1.5 font-bold"
             >
               <Download className="h-3.5 w-3.5" />
-              <span>Download Markdown</span>
+              <span>Download<span className="hidden sm:inline"> Markdown</span></span>
             </Button>
           </div>
         }

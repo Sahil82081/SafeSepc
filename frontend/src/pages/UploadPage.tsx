@@ -132,49 +132,49 @@ export function UploadPage() {
 
       {/* Main Upload Card */}
       <Card className="border-[#202F2B] bg-[#121A18] rounded-2xl shadow-sm">
-        <CardContent className="p-6 sm:p-8 space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <CardContent className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* Drag and Drop Box */}
             <div
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
-              className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition ${
+              className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-5 sm:p-8 text-center transition ${
                 file
                   ? 'border-emerald-500/50 bg-emerald-500/5'
                   : 'border-[#202F2B] bg-[#0E1513] hover:border-amber-500/40 hover:bg-[#141D1B]'
               }`}
             >
-              <div className="mb-3 rounded-xl bg-[#141D1B] p-3 text-amber-400 border border-[#202F2B]">
+              <div className="mb-2.5 sm:mb-3 rounded-xl bg-[#141D1B] p-2.5 sm:p-3 text-amber-400 border border-[#202F2B]">
                 {file ? (
-                  <FileCheck className="h-7 w-7 text-emerald-400" />
+                  <FileCheck className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-400" />
                 ) : (
-                  <UploadCloud className="h-7 w-7 text-amber-400" />
+                  <UploadCloud className="h-6 w-6 sm:h-7 sm:w-7 text-amber-400" />
                 )}
               </div>
 
               {file ? (
                 <div>
-                  <p className="font-semibold text-sm text-[#F8FAFC]">
+                  <p className="font-semibold text-xs sm:text-sm text-[#F8FAFC]">
                     {file.name}
                   </p>
-                  <p className="text-xs text-emerald-400 font-mono mt-0.5">
+                  <p className="text-[11px] sm:text-xs text-emerald-400 font-mono mt-0.5">
                     {(file.size / 1024).toFixed(1)} KB • Document Selected
                   </p>
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-[#F8FAFC]">
-                    Drag and drop your requirement PDF here
+                  <p className="text-xs sm:text-sm font-semibold text-[#F8FAFC]">
+                    Upload automotive requirement specification
                   </p>
-                  <p className="text-xs text-[#64748B]">
-                    Accepts ISO 26262 requirements or automotive system specifications
+                  <p className="text-[11px] sm:text-xs text-[#64748B]">
+                    Accepts ISO 26262 requirements or automotive system specifications PDF
                   </p>
                 </div>
               )}
 
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+              <div className="mt-3.5 sm:mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
                 <label className="cursor-pointer">
-                  <span className="inline-flex h-8 items-center justify-center rounded-lg border border-[#202F2B] bg-[#141D1B] px-3.5 py-1 text-xs font-semibold text-[#F8FAFC] hover:bg-[#1A2623] transition">
+                  <span className="inline-flex h-9 items-center justify-center rounded-lg border border-[#202F2B] bg-[#141D1B] px-3.5 py-1.5 text-xs font-semibold text-[#F8FAFC] hover:bg-[#1A2623] active:scale-95 transition">
                     Browse Files
                   </span>
                   <input
@@ -190,7 +190,7 @@ export function UploadPage() {
                   variant="outline"
                   size="sm"
                   onClick={handleLoadSamplePdf}
-                  className="h-8 border-[#202F2B] bg-[#141D1B] text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[#1A2623] text-xs"
+                  className="h-9 border-[#202F2B] bg-[#141D1B] text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[#1A2623] text-xs active:scale-95"
                 >
                   Use Sample PDF
                 </Button>

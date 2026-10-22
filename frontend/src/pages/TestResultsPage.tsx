@@ -139,21 +139,21 @@ export function TestResultsPage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
           {/* Search Box */}
-          <div className="relative">
+          <div className="relative w-full sm:w-48">
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#71807B]" />
             <input
               type="text"
               placeholder="Search Test ID / Req ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-48 rounded-[7px] border border-[#263632] bg-[#182421] pl-8 pr-3 py-1.5 text-xs text-[#F5F7F6] placeholder:text-[#71807B] focus:outline-none focus:ring-1 focus:ring-[#F4C430]"
+              className="w-full rounded-[7px] border border-[#263632] bg-[#182421] pl-8 pr-3 py-1.5 text-xs text-[#F5F7F6] placeholder:text-[#71807B] focus:outline-none focus:ring-1 focus:ring-[#F4C430]"
             />
           </div>
 
           {/* Category Filter */}
-          <div className="flex items-center gap-1 border-l border-[#263632] pl-2.5">
+          <div className="flex items-center gap-1 border-t pt-2 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-2.5 border-[#263632] flex-wrap">
             {['ALL', 'boundary', 'normal', 'negative'].map((cat) => (
               <button
                 key={cat}
@@ -170,7 +170,7 @@ export function TestResultsPage() {
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1 border-l border-[#263632] pl-2.5">
+          <div className="flex items-center gap-1 border-t pt-2 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-2.5 border-[#263632]">
             {['ALL', 'PASS', 'FAIL'].map((st) => (
               <button
                 key={st}

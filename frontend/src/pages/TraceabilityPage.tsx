@@ -282,7 +282,7 @@ export function TraceabilityPage() {
       {/* Main Canvas & Inspector Layout */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-4">
         {/* Cytoscape Canvas Container */}
-        <div className="relative h-[620px] overflow-hidden rounded-xl border border-[#202F2B] bg-canvas-grid shadow-inner lg:col-span-3">
+        <div className="relative h-[380px] sm:h-[480px] lg:h-[620px] overflow-hidden rounded-xl border border-[#202F2B] bg-canvas-grid shadow-inner lg:col-span-3">
           {isLoading ? (
             <div className="flex h-full items-center justify-center p-8">
               <Skeleton className="h-full w-full bg-[#141D1B]" />

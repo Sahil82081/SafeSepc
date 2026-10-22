@@ -59,21 +59,21 @@ export function DashboardPage() {
     hasActiveRuns && requirements && requirements.length > 0 ? requirements[0].asil : 'STANDBY'
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto pb-12">
+    <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto pb-8 sm:pb-12">
       {/* 1. PRODUCT INTRO & PRIMARY ACTION */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 pt-1 sm:pt-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#F8FAFC]">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#F8FAFC]">
             SafeSpec Verification
           </h1>
-          <p className="text-sm text-[#94A3B8] mt-1">
+          <p className="text-xs sm:text-sm text-[#94A3B8] mt-0.5 sm:mt-1">
             Verify automotive requirements before they reach the vehicle.
           </p>
         </div>
 
         <Link
           to="/upload"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:from-amber-300 hover:to-amber-400 active:scale-[0.98] transition shadow-sm w-fit"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-bold text-slate-950 hover:from-amber-300 hover:to-amber-400 active:scale-[0.98] transition shadow-sm w-full sm:w-fit"
         >
           <PlusCircle className="h-4 w-4" />
           <span>+ New Verification</span>
@@ -81,16 +81,16 @@ export function DashboardPage() {
       </div>
 
       {/* CURRENT VERIFICATION CARD */}
-      <div className="rounded-2xl border border-[#202F2B] bg-[#121A18] p-5 sm:p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#64748B]">
+      <div className="rounded-2xl border border-[#202F2B] bg-[#121A18] p-4 sm:p-6 shadow-sm">
+        <div className="flex items-center justify-between gap-2 mb-2 sm:mb-2.5">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#64748B]">
             Current Verification
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10.5px] sm:text-[11px] font-semibold text-emerald-400">
             {currentReqAsil} Safety Target
           </span>
         </div>
-        <p className="text-base sm:text-lg font-medium text-[#F8FAFC] leading-relaxed">
+        <p className="text-sm sm:text-base md:text-lg font-medium text-[#F8FAFC] leading-relaxed">
           "{currentReqText}"
         </p>
       </div>
@@ -234,36 +234,36 @@ export function DashboardPage() {
       </div>
 
       {/* 3. PROMINENT VERIFICATION RESULT (The Most Important Element) */}
-      <div className={`rounded-2xl border p-6 sm:p-8 shadow-md transition-colors ${
+      <div className={`rounded-2xl border p-4 sm:p-6 md:p-8 shadow-md transition-colors ${
         !hasActiveRuns
           ? 'border-[#202F2B] bg-gradient-to-b from-[#141D1B] via-[#121A18] to-[#0E1513]'
           : 'border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 via-[#121A18] to-[#0E1513]'
       }`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-bold uppercase tracking-wider ${!hasActiveRuns ? 'text-[#94A3B8]' : 'text-emerald-400'}`}>
+              <span className={`text-[11px] sm:text-xs font-bold uppercase tracking-wider ${!hasActiveRuns ? 'text-[#94A3B8]' : 'text-emerald-400'}`}>
                 Verification Result
               </span>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className={`flex h-10 w-10 items-center justify-center rounded-full border ${
+            <div className="flex items-start sm:items-center gap-3">
+              <div className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border ${
                 !hasActiveRuns
                   ? 'bg-[#182421] text-[#94A3B8] border-[#263632]'
                   : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
               }`}>
-                <CheckCircle2 className={`h-6 w-6 ${!hasActiveRuns ? 'text-[#94A3B8]' : 'text-emerald-400'}`} />
+                <CheckCircle2 className={`h-5 w-5 sm:h-6 sm:w-6 ${!hasActiveRuns ? 'text-[#94A3B8]' : 'text-emerald-400'}`} />
               </div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#F8FAFC]">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#F8FAFC]">
                   {!hasActiveRuns
                     ? 'READY TO VERIFY'
                     : isVerified || !hasIssues
                     ? '✓ VERIFIED'
                     : 'ACTION NEEDED'}
                 </h2>
-                <p className="text-sm text-[#94A3B8] mt-0.5">
+                <p className="text-xs sm:text-sm text-[#94A3B8] mt-0.5">
                   {!hasActiveRuns
                     ? 'No verification run active. Upload an automotive specification or click "+ New Verification".'
                     : isVerified || !hasIssues
@@ -276,7 +276,7 @@ export function DashboardPage() {
 
           <Link
             to={hasActiveRuns ? '/verification' : '/upload'}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/25 transition w-fit"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/25 transition w-full sm:w-fit"
           >
             <span>{hasActiveRuns ? 'View Full Verification' : 'Start Verification'}</span>
             <ArrowRight className="h-3.5 w-3.5" />

@@ -126,7 +126,7 @@ export function RequirementsPage() {
       />
 
       {/* Filter and Search Bar */}
-      <div className="rounded-[9px] border border-[#263632] bg-gradient-to-b from-[#162320] to-[#141E1C] p-3.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-xs">
+      <div className="rounded-[9px] border border-[#263632] bg-gradient-to-b from-[#162320] to-[#141E1C] p-3 sm:p-3.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-xs">
         {/* Search Box */}
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[#71807B]" />
@@ -140,9 +140,9 @@ export function RequirementsPage() {
         </div>
 
         {/* Filter Toolbar */}
-        <div className="flex flex-wrap items-center gap-3 text-xs">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs">
           {/* ASIL Filter */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-wrap">
             <span className="font-bold text-[#71807B] text-[11px] mr-0.5">ASIL:</span>
             {['ALL', 'QM', 'A', 'B', 'C', 'D'].map((lvl) => (
               <button
@@ -160,7 +160,7 @@ export function RequirementsPage() {
           </div>
 
           {/* Ambiguity Filter */}
-          <div className="flex items-center gap-1 border-l border-[#263632] pl-3">
+          <div className="flex items-center gap-1 border-t pt-2 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-3 border-[#263632] flex-wrap">
             <span className="font-bold text-[#71807B] text-[11px] mr-0.5">Ambiguity:</span>
             {['ALL', 'LOW', 'MEDIUM', 'HIGH'].map((amb) => (
               <button
@@ -195,7 +195,7 @@ export function RequirementsPage() {
           title="No Requirements Ingested"
           description="Extract automotive specification clauses, ASIL ratings, and formal AST rules by running a verification cycle."
           action={
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Button
                 onClick={handleRunDemo}
                 disabled={runDemoMutation.isPending}
@@ -238,136 +238,206 @@ export function RequirementsPage() {
           }
         />
       ) : (
-        /* Requirements Table */
-        <div className="overflow-hidden rounded-[9px] border border-[#263632] bg-[#141E1C] shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-[#263632] bg-[#182421] text-[#A8B5B1] font-bold text-[11px]">
-                <tr>
-                  <th className="py-2.5 px-3.5 w-28 font-mono">REQ ID</th>
-                  <th className="py-2.5 px-3 w-20">ASIL</th>
-                  <th className="py-2.5 px-3.5">Specification Clause Text</th>
-                  <th className="py-2.5 px-3 w-28">Ambiguity</th>
-                  <th className="py-2.5 px-3.5">Quality Finding &amp; Refinement</th>
-                  <th className="py-2.5 px-3 text-right w-16">Details</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#263632]/80">
-                {filteredRequirements.map((req) => {
-                  const isExpanded = expandedId === req.id
-                  const hasQualityFinding =
-                    Boolean(req.ambiguity_reasons && req.ambiguity_reasons.length > 0) ||
-                    Boolean(req.suggested_refinement)
+        <>
+          {/* Mobile Card List (md:hidden) */}
+          <div className="space-y-3 md:hidden">
+            {filteredRequirements.map((req) => {
+              const isExpanded = expandedId === req.id
+              const hasQualityFinding =
+                Boolean(req.ambiguity_reasons && req.ambiguity_reasons.length > 0) ||
+                Boolean(req.suggested_refinement)
 
-                  return (
-                    <React.Fragment key={req.id}>
-                      <tr
-                        className={`transition hover:bg-[#182421] cursor-pointer ${
-                          isExpanded ? 'bg-[rgba(244,196,48,0.08)]' : ''
+              return (
+                <div
+                  key={req.id}
+                  onClick={() => toggleExpand(req.id)}
+                  className={`rounded-xl border transition p-3.5 space-y-2 cursor-pointer ${
+                    isExpanded
+                      ? 'border-amber-500/40 bg-[#16221F]'
+                      : 'border-[#263632] bg-[#141E1C] hover:border-[#2E423D]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-amber-400 text-xs sm:text-sm">
+                      {req.id}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`rounded-[4px] px-1.5 py-0.5 font-mono text-[10px] font-bold ${
+                          req.asil === 'D' || req.asil === 'C'
+                            ? 'border border-[rgba(255,92,92,0.35)] bg-[rgba(255,92,92,0.12)] text-[#FF5C5C]'
+                            : req.asil === 'B' || req.asil === 'A'
+                              ? 'border border-[rgba(255,176,32,0.35)] bg-[rgba(255,176,32,0.12)] text-[#FFB020]'
+                              : 'border border-[#263632] bg-[#182421] text-[#A8B5B1]'
                         }`}
-                        onClick={() => toggleExpand(req.id)}
                       >
-                        <td className="py-2.5 px-3.5 font-mono font-bold text-[#F4C430]">
-                          {req.id}
-                        </td>
-                        <td className="py-2.5 px-3">
-                          <span
-                            className={`rounded-[4px] px-1.5 py-0.5 font-mono text-[10px] font-bold ${
-                              req.asil === 'D' || req.asil === 'C'
-                                ? 'border border-[rgba(255,92,92,0.35)] bg-[rgba(255,92,92,0.12)] text-[#FF5C5C]'
-                                : req.asil === 'B' || req.asil === 'A'
-                                  ? 'border border-[rgba(255,176,32,0.35)] bg-[rgba(255,176,32,0.12)] text-[#FFB020]'
-                                  : 'border border-[#263632] bg-[#182421] text-[#A8B5B1]'
-                            }`}
-                          >
-                            {req.asil || 'QM'}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-3.5 text-[#F5F7F6] leading-relaxed max-w-md">
-                          {req.text}
-                        </td>
-                        <td className="py-2.5 px-3">
-                          {getAmbiguityBadge(req.ambiguity)}
-                        </td>
-                        <td className="py-2.5 px-3.5 text-[#A8B5B1]">
-                          {hasQualityFinding ? (
-                            <div className="flex items-center gap-1.5 text-[#FFB020] text-[11.5px]">
-                              <span className="truncate max-w-[280px]">
-                                {req.ambiguity_reasons?.[0] || req.suggested_refinement || 'Ambiguous phrasing detected'}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-[#71807B] text-[11px] font-mono">
-                              Deterministic Clause
+                        ASIL {req.asil || 'QM'}
+                      </span>
+                      {getAmbiguityBadge(req.ambiguity)}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-[#F5F7F6] leading-relaxed">
+                    "{req.text}"
+                  </p>
+
+                  {hasQualityFinding && (
+                    <div className="text-[11px] text-[#FFB020] bg-amber-500/10 border border-amber-500/20 rounded-md p-2">
+                      <span className="font-semibold block text-[10.5px] uppercase">Quality Finding:</span>
+                      <span>{req.ambiguity_reasons?.[0] || req.suggested_refinement}</span>
+                    </div>
+                  )}
+
+                  {/* Mobile Expanded Drawer */}
+                  {isExpanded && (
+                    <div className="pt-2 border-t border-[#263632] space-y-2 text-xs">
+                      {req.suggested_refinement && (
+                        <div className="rounded-md border border-[rgba(25,201,151,0.32)] bg-[rgba(25,201,151,0.12)] p-2 text-[#19C997] text-[11px]">
+                          <strong className="block font-mono uppercase text-[10px]">Engineering Suggestion:</strong>
+                          <p>{req.suggested_refinement}</p>
+                        </div>
+                      )}
+                      <div className="font-mono text-[10px] text-[#71807B]">
+                        Source: Ingested PDF • Classification: ASIL {req.asil || 'QM'}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Desktop Table (hidden md:block) */}
+          <div className="hidden md:block overflow-hidden rounded-[9px] border border-[#263632] bg-[#141E1C] shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-[#263632] bg-[#182421] text-[#A8B5B1] font-bold text-[11px]">
+                  <tr>
+                    <th className="py-2.5 px-3.5 w-28 font-mono">REQ ID</th>
+                    <th className="py-2.5 px-3 w-20">ASIL</th>
+                    <th className="py-2.5 px-3.5">Specification Clause Text</th>
+                    <th className="py-2.5 px-3 w-28">Ambiguity</th>
+                    <th className="py-2.5 px-3.5">Quality Finding &amp; Refinement</th>
+                    <th className="py-2.5 px-3 text-right w-16">Details</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#263632]/80">
+                  {filteredRequirements.map((req) => {
+                    const isExpanded = expandedId === req.id
+                    const hasQualityFinding =
+                      Boolean(req.ambiguity_reasons && req.ambiguity_reasons.length > 0) ||
+                      Boolean(req.suggested_refinement)
+
+                    return (
+                      <React.Fragment key={req.id}>
+                        <tr
+                          className={`transition hover:bg-[#182421] cursor-pointer ${
+                            isExpanded ? 'bg-[rgba(244,196,48,0.08)]' : ''
+                          }`}
+                          onClick={() => toggleExpand(req.id)}
+                        >
+                          <td className="py-2.5 px-3.5 font-mono font-bold text-[#F4C430]">
+                            {req.id}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <span
+                              className={`rounded-[4px] px-1.5 py-0.5 font-mono text-[10px] font-bold ${
+                                req.asil === 'D' || req.asil === 'C'
+                                  ? 'border border-[rgba(255,92,92,0.35)] bg-[rgba(255,92,92,0.12)] text-[#FF5C5C]'
+                                  : req.asil === 'B' || req.asil === 'A'
+                                    ? 'border border-[rgba(255,176,32,0.35)] bg-[rgba(255,176,32,0.12)] text-[#FFB020]'
+                                    : 'border border-[#263632] bg-[#182421] text-[#A8B5B1]'
+                              }`}
+                            >
+                              {req.asil || 'QM'}
                             </span>
-                          )}
-                        </td>
-                        <td className="py-2.5 px-3 text-right">
-                          <button
-                            type="button"
-                            className="rounded p-1 text-[#71807B] hover:text-[#F5F7F6]"
-                          >
-                            {isExpanded ? (
-                              <ChevronUp className="h-3.5 w-3.5 text-[#F4C430]" />
+                          </td>
+                          <td className="py-2.5 px-3.5 text-[#F5F7F6] leading-relaxed max-w-md">
+                            {req.text}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            {getAmbiguityBadge(req.ambiguity)}
+                          </td>
+                          <td className="py-2.5 px-3.5 text-[#A8B5B1]">
+                            {hasQualityFinding ? (
+                              <div className="flex items-center gap-1.5 text-[#FFB020] text-[11.5px]">
+                                <span className="truncate max-w-[280px]">
+                                  {req.ambiguity_reasons?.[0] || req.suggested_refinement || 'Ambiguous phrasing detected'}
+                                </span>
+                              </div>
                             ) : (
-                              <ChevronDown className="h-3.5 w-3.5" />
+                              <span className="text-[#71807B] text-[11px] font-mono">
+                                Deterministic Clause
+                              </span>
                             )}
-                          </button>
-                        </td>
-                      </tr>
-
-                      {/* Expandable Technical Detail Drawer */}
-                      {isExpanded && (
-                        <tr className="bg-[#0B1110]">
-                          <td colSpan={6} className="p-3.5 pl-10">
-                            <div className="rounded-[7px] border border-[#263632] bg-[#182421] p-3.5 space-y-2.5 shadow-2xs">
-                              <div className="flex items-center justify-between border-b border-[#263632] pb-2">
-                                <span className="font-mono text-xs font-bold text-[#F4C430]">
-                                  {req.id} — ISO 26262 Part 8 Section 6 Inspection Finding
-                                </span>
-                                <span className="font-mono text-[10.5px] text-[#71807B]">
-                                  Traceability Hash: {req.id}-FU-SA
-                                </span>
-                              </div>
-
-                              {req.ambiguity_reasons && req.ambiguity_reasons.length > 0 && (
-                                <div>
-                                  <span className="text-[11.5px] font-semibold text-[#F5F7F6]">
-                                    Quality Problem:
-                                  </span>
-                                  <ul className="mt-0.5 text-xs text-[#FF5C5C] list-disc list-inside space-y-0.5">
-                                    {req.ambiguity_reasons.map((r, i) => (
-                                      <li key={i}>{r}</li>
-                                    ))}
-                                  </ul>
-                                </div>
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            <button
+                              type="button"
+                              className="rounded p-1 text-[#71807B] hover:text-[#F5F7F6]"
+                            >
+                              {isExpanded ? (
+                                <ChevronUp className="h-3.5 w-3.5 text-[#F4C430]" />
+                              ) : (
+                                <ChevronDown className="h-3.5 w-3.5" />
                               )}
-
-                              {req.suggested_refinement && (
-                                <div className="rounded-[5px] border border-[rgba(25,201,151,0.32)] bg-[rgba(25,201,151,0.12)] p-2.5 text-xs text-[#19C997]">
-                                  <strong className="block text-[11px] uppercase tracking-wider font-mono">
-                                    Engineering Suggestion:
-                                  </strong>
-                                  <p className="mt-0.5">{req.suggested_refinement}</p>
-                                </div>
-                              )}
-
-                              <div className="flex items-center gap-3 font-mono text-[10.5px] text-[#71807B] pt-0.5">
-                                <span>Source: Ingested PDF Specification</span>
-                                <span>&bull;</span>
-                                <span>Classification: ASIL {req.asil || 'QM'}</span>
-                              </div>
-                            </div>
+                            </button>
                           </td>
                         </tr>
-                      )}
-                    </React.Fragment>
-                  )
-                })}
-              </tbody>
-            </table>
+
+                        {/* Expandable Technical Detail Drawer */}
+                        {isExpanded && (
+                          <tr className="bg-[#0B1110]">
+                            <td colSpan={6} className="p-3.5 pl-10">
+                              <div className="rounded-[7px] border border-[#263632] bg-[#182421] p-3.5 space-y-2.5 shadow-2xs">
+                                <div className="flex items-center justify-between border-b border-[#263632] pb-2">
+                                  <span className="font-mono text-xs font-bold text-[#F4C430]">
+                                    {req.id} — ISO 26262 Part 8 Section 6 Inspection Finding
+                                  </span>
+                                  <span className="font-mono text-[10.5px] text-[#71807B]">
+                                    Traceability Hash: {req.id}-FU-SA
+                                  </span>
+                                </div>
+
+                                {req.ambiguity_reasons && req.ambiguity_reasons.length > 0 && (
+                                  <div>
+                                    <span className="text-[11.5px] font-semibold text-[#F5F7F6]">
+                                      Quality Problem:
+                                    </span>
+                                    <ul className="mt-0.5 text-xs text-[#FF5C5C] list-disc list-inside space-y-0.5">
+                                      {req.ambiguity_reasons.map((r, i) => (
+                                        <li key={i}>{r}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+
+                                {req.suggested_refinement && (
+                                  <div className="rounded-[5px] border border-[rgba(25,201,151,0.32)] bg-[rgba(25,201,151,0.12)] p-2.5 text-xs text-[#19C997]">
+                                    <strong className="block text-[11px] uppercase tracking-wider font-mono">
+                                      Engineering Suggestion:
+                                    </strong>
+                                    <p className="mt-0.5">{req.suggested_refinement}</p>
+                                  </div>
+                                )}
+
+                                <div className="flex items-center gap-3 font-mono text-[10.5px] text-[#71807B] pt-0.5">
+                                  <span>Source: Ingested PDF Specification</span>
+                                  <span>&bull;</span>
+                                  <span>Classification: ASIL {req.asil || 'QM'}</span>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   )

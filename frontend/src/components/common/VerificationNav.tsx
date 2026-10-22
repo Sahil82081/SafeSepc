@@ -28,7 +28,7 @@ export function VerificationNav() {
   ]
 
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-6 border-b border-[#202F2B]">
+    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth pb-2 mb-6 border-b border-[#202F2B] -mx-3.5 px-3.5 sm:mx-0 sm:px-0">
       {tabs.map((tab) => {
         const Icon = tab.icon
         return (

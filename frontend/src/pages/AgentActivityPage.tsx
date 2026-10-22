@@ -53,7 +53,7 @@ export function AgentActivityPage() {
         subtitle="Live streaming of Gemini reasoning, tool actions, and execution telemetry."
         badge={`${events.length} Events`}
         actions={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {isConnected && (
               <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-mono">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -63,7 +63,7 @@ export function AgentActivityPage() {
             {isCompleted && (
               <span className="flex items-center gap-1.5 text-xs text-[#94A3B8] font-mono">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                Stream Finished
+                Finished
               </span>
             )}
             <Button
@@ -74,7 +74,7 @@ export function AgentActivityPage() {
               className="gap-1.5 border-[#202F2B] bg-[#141D1B] text-[#94A3B8] hover:bg-[#1A2623] hover:text-[#F8FAFC]"
             >
               <Download className="h-3.5 w-3.5" />
-              <span>Export Audit JSON</span>
+              <span>Export<span className="hidden sm:inline"> Audit JSON</span></span>
             </Button>
           </div>
         }
