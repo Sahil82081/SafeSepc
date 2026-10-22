@@ -25,7 +25,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.config import GEMINI_MODEL
+from backend.app.config import FRONTEND_URL, GEMINI_MODEL
 from backend.app.db.session import init_db
 from backend.app.api.routes import router as api_router
 
@@ -44,15 +44,23 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Enable CORS for frontend communication (specifically http://localhost:5173)
+# Configure CORS origins
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+]
+
+if FRONTEND_URL:
+    for url in FRONTEND_URL.split(","):
+        cleaned = url.strip().rstrip("/")
+        if cleaned and cleaned not in allowed_origins:
+            allowed_origins.append(cleaned)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "*",
-    ],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

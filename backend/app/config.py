@@ -41,6 +41,9 @@ GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 # Rule 3: The model name lives ONLY in backend/app/config.py.
 GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
 
+# Frontend URL for CORS configuration
+FRONTEND_URL: str = os.getenv("FRONTEND_URL", "")
+
 # Database Configuration
 DATABASE_PATH = (BACKEND_DIR / "safespec.db").resolve()
 _env_db = os.getenv("DATABASE_URL", "")
